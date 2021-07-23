@@ -15,10 +15,10 @@ from werkzeug import Request as HTTPRequest
 import dbt.exceptions
 import dbt.tracking
 from dbt.logger import GLOBAL_LOGGER as logger
-from dbt_api.rpc.logger import RequestContext
-from dbt_api.rpc.task_handler import RequestTaskHandler
-from dbt_api.rpc.method import RemoteMethod
-from dbt_api.rpc.task_manager import TaskManager
+from dbt_rpc.rpc.logger import RequestContext
+from dbt_rpc.rpc.task_handler import RequestTaskHandler
+from dbt_rpc.rpc.method import RemoteMethod
+from dbt_rpc.rpc.task_manager import TaskManager
 
 
 def track_rpc_request(task):

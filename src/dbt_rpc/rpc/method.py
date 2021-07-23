@@ -5,7 +5,7 @@ from typing import List, Optional, Type, TypeVar, Generic, Dict, Any
 
 from dbt.dataclass_schema import dbtClassMixin, ValidationError
 
-from dbt_api.contracts.rpc import RPCParameters, RemoteResult, RemoteMethodFlags
+from dbt_rpc.contracts.rpc import RPCParameters, RemoteResult, RemoteMethodFlags
 from dbt.exceptions import NotImplementedException, InternalException
 
 Parameters = TypeVar('Parameters', bound=RPCParameters)

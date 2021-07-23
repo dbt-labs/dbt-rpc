@@ -9,7 +9,7 @@ import dbt.exceptions
 import dbt.flags as flags
 from dbt.adapters.factory import reset_adapters, register_adapter
 from dbt.contracts.graph.manifest import Manifest
-from dbt_api.contracts.rpc import (
+from dbt_rpc.contracts.rpc import (
     LastParse,
     ManifestStatus,
     GCSettings,
@@ -19,15 +19,15 @@ from dbt_api.contracts.rpc import (
 )
 from dbt.logger import LogMessage, list_handler
 from dbt.parser.manifest import ManifestLoader
-from dbt_api.rpc.error import dbt_error
-from dbt_api.rpc.gc import GarbageCollector
-from dbt_api.rpc.task_handler_protocol import TaskHandlerProtocol, TaskHandlerMap
-from dbt_api.rpc.task_handler import set_parse_state_with
-from dbt_api.rpc.method import (
+from dbt_rpc.rpc.error import dbt_error
+from dbt_rpc.rpc.gc import GarbageCollector
+from dbt_rpc.rpc.task_handler_protocol import TaskHandlerProtocol, TaskHandlerMap
+from dbt_rpc.rpc.task_handler import set_parse_state_with
+from dbt_rpc.rpc.method import (
     RemoteMethod, RemoteManifestMethod, RemoteBuiltinMethod, TaskTypes,
 )
 # pick up our builtin methods
-import dbt_api.rpc.builtins  # noqa
+import dbt_rpc.rpc.builtins  # noqa
 
 
 # import this to make sure our timedelta encoder is registered

@@ -10,14 +10,14 @@ from dbt.clients.jinja import extract_toplevel_blocks
 from dbt.config.runtime import RuntimeConfig
 from dbt.contracts.graph.manifest import Manifest
 from dbt.contracts.graph.parsed import ParsedRPCNode
-from dbt_api.contracts.rpc import RPCExecParameters
-from dbt_api.contracts.rpc import RemoteExecutionResult
+from dbt_rpc.contracts.rpc import RPCExecParameters
+from dbt_rpc.contracts.rpc import RemoteExecutionResult
 from dbt.exceptions import RPCKilledException, InternalException
 from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.parser.manifest import process_node, process_macro
-from dbt_api.parser.rpc import RPCCallParser, RPCMacroParser
-from dbt_api.rpc.error import invalid_params
-from dbt_api.rpc.node_runners import RPCCompileRunner, RPCExecuteRunner
+from dbt_rpc.parser.rpc import RPCCallParser, RPCMacroParser
+from dbt_rpc.rpc.error import invalid_params
+from dbt_rpc.rpc.node_runners import RPCCompileRunner, RPCExecuteRunner
 from dbt.task.compile import CompileTask
 from dbt.task.run import RunTask
 

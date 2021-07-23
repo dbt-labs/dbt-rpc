@@ -16,29 +16,29 @@ import dbt.flags
 from dbt.adapters.factory import (
     cleanup_connections, load_plugin, register_adapter,
 )
-from dbt_api.contracts.rpc import (
+from dbt_rpc.contracts.rpc import (
     RPCParameters, RemoteResult, TaskHandlerState, RemoteMethodFlags, TaskTags,
 )
 from dbt.exceptions import InternalException
 from dbt.logger import (
     GLOBAL_LOGGER as logger, list_handler, LogMessage, OutputHandler,
 )
-from dbt_api.rpc.error import (
+from dbt_rpc.rpc.error import (
     dbt_error,
     server_error,
     RPCException,
     timeout_error,
 )
-from dbt_api.rpc.task_handler_protocol import TaskHandlerProtocol
-from dbt_api.rpc.logger import (
+from dbt_rpc.rpc.task_handler_protocol import TaskHandlerProtocol
+from dbt_rpc.rpc.logger import (
     QueueSubscriber,
     QueueLogHandler,
     QueueErrorMessage,
     QueueResultMessage,
     QueueTimeoutMessage,
 )
-from dbt_api.rpc.method import RemoteMethod
-from dbt_api.task.project_commands import RemoteListTask
+from dbt_rpc.rpc.method import RemoteMethod
+from dbt_rpc.task.project_commands import RemoteListTask
 
 # we use this in typing only...
 from queue import Queue  # noqa

@@ -5,7 +5,7 @@ from typing import List, Optional, Union
 
 from dbt import flags
 from dbt.contracts.graph.manifest import WritableManifest
-from dbt_api.contracts.rpc import (
+from dbt_rpc.contracts.rpc import (
     GetManifestParameters,
     GetManifestResult,
     RPCCompileParameters,
@@ -23,7 +23,7 @@ from dbt_api.contracts.rpc import (
     RPCListParameters,
 )
 from dbt.exceptions import RuntimeException
-from dbt_api.rpc.method import (
+from dbt_rpc.rpc.method import (
     Parameters, RemoteManifestMethod
 )
 

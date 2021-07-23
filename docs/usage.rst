@@ -1,6 +1,6 @@
 Usage
 =====
 
-.. click:: dbt_api.__main__:main
+.. click:: dbt_rpc.__main__:main
    :prog: dbt-api
    :nested: full

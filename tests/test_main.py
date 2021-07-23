@@ -2,7 +2,7 @@
 import pytest
 from click.testing import CliRunner
 
-from dbt_api import __main__
+from dbt_rpc import __main__
 
 
 @pytest.fixture

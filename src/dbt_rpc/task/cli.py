@@ -5,9 +5,9 @@ from typing import Type, Optional
 
 
 from dbt.config.utils import parse_cli_vars
-from dbt_api.contracts.rpc import RPCCliParameters
+from dbt_rpc.contracts.rpc import RPCCliParameters
 
-from dbt_api.rpc.method import (
+from dbt_rpc.rpc.method import (
     RemoteMethod,
     RemoteManifestMethod,
     Parameters,
@@ -55,7 +55,7 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
     def set_args(self, params: RPCCliParameters) -> None:
         # more import cycles :(
         from dbt.main import parse_args
-        from dbt_api.__main__ import RPCArgumentParser
+        from dbt_rpc.__main__ import RPCArgumentParser
         split = shlex.split(params.cli)
         self.args = parse_args(split, RPCArgumentParser)
         self.task_type = self.get_rpc_task_cls()

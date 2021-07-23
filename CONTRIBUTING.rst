@@ -1,10 +1,6 @@
 Contributor Guide
 =================
 
-Thank you for your interest in improving this project.
-This project is open-source under the `Apache 2.0 license`_ and
-welcomes contributions in the form of bug reports, feature requests, and pull requests.
-
 Here is a list of important resources for contributors:
 
 - `Source Code`_
@@ -12,7 +8,6 @@ Here is a list of important resources for contributors:
 - `Issue Tracker`_
 - `Code of Conduct`_
 
-.. _Apache 2.0 license: https://opensource.org/licenses/Apache-2.0
 .. _Source Code: https://github.com/kwigley/dbt-api
 .. _Documentation: https://dbt-api.readthedocs.io/
 .. _Issue Tracker: https://github.com/kwigley/dbt-api/issues
@@ -61,7 +56,7 @@ or the command-line interface:
 .. code:: console
 
    $ poetry run python
-   $ poetry run dbt-api
+   $ poetry run dbt-rpc
 
 .. _Poetry: https://python-poetry.org/
 .. _Nox: https://nox.thea.codes/

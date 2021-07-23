@@ -19,10 +19,10 @@ from dbt.logger import (
     GLOBAL_LOGGER as logger,
     log_manager,
 )
-from dbt_api.rpc.logger import ServerContext, HTTPRequest, RPCResponse
-from dbt_api.rpc.method import TaskTypes, RemoteMethod
-from dbt_api.rpc.response_manager import ResponseManager
-from dbt_api.rpc.task_manager import TaskManager
+from dbt_rpc.rpc.logger import ServerContext, HTTPRequest, RPCResponse
+from dbt_rpc.rpc.method import TaskTypes, RemoteMethod
+from dbt_rpc.rpc.response_manager import ResponseManager
+from dbt_rpc.rpc.task_manager import TaskManager
 from dbt.task.base import ConfiguredTask
 from dbt.utils import ForgivingJSONEncoder
 

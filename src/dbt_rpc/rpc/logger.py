@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from queue import Empty
 from typing import Optional, Any
 
-from dbt_api.contracts.rpc import (
+from dbt_rpc.contracts.rpc import (
     RemoteResult,
 )
 from dbt.exceptions import InternalException

@@ -14,7 +14,7 @@ from dbt.main import (
 )
 from dbt.utils import ExitCodes
 from dbt.exceptions import RuntimeException
-from dbt_api.task.server import RPCServerTask
+from dbt_rpc.task.server import RPCServerTask
 
 from dbt.profiler import profiler
 from dbt.logger import GLOBAL_LOGGER as logger, log_manager
@@ -28,7 +28,7 @@ class RPCArgumentParser(DBTArgumentParser):
 
 def _build_rpc_subparser(subparsers, base_subparser):
     sub = subparsers.add_parser(
-        'rpc',
+        'serve',
         parents=[base_subparser],
         help='''
         Start a json-rpc server
@@ -68,7 +68,7 @@ def _build_rpc_subparser(subparsers, base_subparser):
 
 def build_parser(cls=DBTArgumentParser):
     p = cls(
-        prog='dbt-api',
+        prog='dbt-rpc',
         description='''
         An ELT tool for managing your SQL transformations and data models.
         For more documentation on these commands, visit: docs.getdbt.com

@@ -6,8 +6,8 @@ Reference
     :backlinks: none
 
 
-dbt_api.__main__
+dbt_rpc.__main__
 ----------------
 
-.. automodule:: dbt_api.__main__
+.. automodule:: dbt_rpc.__main__
    :members:

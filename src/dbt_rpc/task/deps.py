@@ -1,10 +1,10 @@
 import os
 import shutil
 
-from dbt_api.contracts.rpc import (
+from dbt_rpc.contracts.rpc import (
     RPCDepsParameters, RemoteDepsResult, RemoteMethodFlags,
 )
-from dbt_api.rpc.method import RemoteMethod
+from dbt_rpc.rpc.method import RemoteMethod
 from dbt.task.deps import DepsTask
 
 

@@ -1,12 +1,11 @@
 [tool.poetry]
-name = "dbt-api"
+name = "dbt-rpc"
 version = "0.0.0"
-description = "dbt API"
+description = "dbt RPC server"
 authors = ["dbt Labs <info@dbtlabs.com>"]
-license = "Apache-2.0"
 readme = "README.rst"
-homepage = "https://github.com/dbt-labs/dbt-api"
-repository = "https://github.com/dbt-labs/dbt-api"
+homepage = "https://github.com/dbt-labs/dbt-rpc-server"
+repository = "https://github.com/dbt-labs/dbt-rpc-server"
 classifiers = [
     "Development Status :: 1 - Planning",
     "Programming Language :: Python :: 3.6",
@@ -15,14 +14,11 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
 ]
 
-[tool.poetry.urls]
-Changelog = "https://github.com/kwigley/dbt-api/releases"
-
 [tool.poetry.dependencies]
 python = "^3.6.3"
 dbt-core = "^0.20.0"
 # local editable install
-# dbt-core = { path = "../dbt/core", develop = true}
+# dbt-core = { path = "../dbt/core", develop = true }
 # you will still need to install adapters
 dbt-postgres = "^0.20.0"
 
@@ -51,14 +47,14 @@ sphinx-click = "^3.0.1"
 Pygments = "^2.9.0"
 
 [tool.poetry.scripts]
-dbt-api = "dbt_api.__main__:main"
+dbt-rpc = "dbt_rpc.__main__:main"
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
 
 [tool.coverage.run]
 branch = true
-source = ["dbt_api"]
+source = ["dbt_rpc"]
 
 [tool.coverage.report]
 show_missing = true

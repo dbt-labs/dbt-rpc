@@ -3,13 +3,13 @@ from datetime import datetime, timedelta
 from typing import Optional, List, Iterable, Tuple
 
 import dbt.exceptions
-from dbt_api.contracts.rpc import (
+from dbt_rpc.contracts.rpc import (
     GCSettings,
     GCResultState,
     GCResult,
     TaskID,
 )
-from dbt_api.rpc.task_handler_protocol import TaskHandlerMap
+from dbt_rpc.rpc.task_handler_protocol import TaskHandlerMap
 
 # import this to make sure our timedelta encoder is registered
 from dbt import helper_types  # noqa

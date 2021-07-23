@@ -1,7 +1,7 @@
 dbt API
 =======
 
-|PyPI| |Status| |Python Version| |License|
+|PyPI| |Status| |Python Version|
 
 |Read the Docs| |Tests| |Codecov|
 
@@ -16,9 +16,6 @@ dbt API
 .. |Python Version| image:: https://img.shields.io/pypi/pyversions/dbt-api
    :target: https://pypi.org/project/dbt-api
    :alt: Python Version
-.. |License| image:: https://img.shields.io/pypi/l/dbt-api
-   :target: https://opensource.org/licenses/Apache-2.0
-   :alt: License
 .. |Read the Docs| image:: https://img.shields.io/readthedocs/dbt-api/latest.svg?label=Read%20the%20Docs
    :target: https://dbt-api.readthedocs.io/
    :alt: Read the documentation at https://dbt-api.readthedocs.io/
@@ -71,13 +68,6 @@ Contributions are very welcome.
 To learn more, see the `Contributor Guide`_.
 
 
-License
--------
-
-Distributed under the terms of the `Apache 2.0 license`_,
-*dbt API* is free and open source software.
-
-
 Issues
 ------
 
@@ -92,7 +82,6 @@ This project was generated from `@cjolowicz`_'s `Hypermodern Python Cookiecutter
 
 .. _@cjolowicz: https://github.com/cjolowicz
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _Apache 2.0 license: https://opensource.org/licenses/Apache-2.0
 .. _PyPI: https://pypi.org/
 .. _Hypermodern Python Cookiecutter: https://github.com/cjolowicz/cookiecutter-hypermodern-python
 .. _file an issue: https://github.com/kwigley/dbt-api/issues

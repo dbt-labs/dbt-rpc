@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Type, Union, Any, List, Dict
 
 import dbt.exceptions
-from dbt_api.contracts.rpc import (
+from dbt_rpc.contracts.rpc import (
     TaskTags,
     StatusParameters,
     LastParse,
@@ -40,9 +40,9 @@ from dbt_api.contracts.rpc import (
     TaskTiming,
 )
 from dbt.logger import LogMessage
-from dbt_api.rpc.error import dbt_error, RPCException
-from dbt_api.rpc.method import RemoteBuiltinMethod
-from dbt_api.rpc.task_handler import RequestTaskHandler
+from dbt_rpc.rpc.error import dbt_error, RPCException
+from dbt_rpc.rpc.method import RemoteBuiltinMethod
+from dbt_rpc.rpc.task_handler import RequestTaskHandler
 
 
 class GC(RemoteBuiltinMethod[GCParameters, GCResult]):

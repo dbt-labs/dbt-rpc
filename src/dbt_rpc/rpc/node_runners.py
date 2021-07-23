@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Generic, TypeVar
 
 import dbt.exceptions
-from dbt_api.contracts.rpc import (
+from dbt_rpc.contracts.rpc import (
     RemoteCompileResult,
     RemoteCompileResultMixin,
     RemoteRunResult,
@@ -11,7 +11,7 @@ from dbt_api.contracts.rpc import (
 )
 from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.task.compile import CompileRunner
-from dbt_api.rpc.error import dbt_error, RPCException, server_error
+from dbt_rpc.rpc.error import dbt_error, RPCException, server_error
 
 
 RPCSQLResult = TypeVar('RPCSQLResult', bound=RemoteCompileResultMixin)

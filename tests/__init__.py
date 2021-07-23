@@ -1,1 +1,1 @@
-"""Test suite for the dbt_api package."""
+"""Test suite for the dbt_rpc package."""
