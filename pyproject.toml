@@ -21,6 +21,10 @@ dbt-core = "^0.20.0"
 # dbt-core = { path = "../dbt/core", develop = true }
 # you will still need to install adapters
 dbt-postgres = "^0.20.0"
+fastapi = "^0.68.1"
+uvicorn = "^0.15.0"
+ipdb = "^0.13.9"
+websockets = "^9.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.4"
