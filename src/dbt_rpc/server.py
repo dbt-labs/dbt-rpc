@@ -19,9 +19,10 @@ import json, os, io
 
 from . import fsapi, logging
 
+from dbt.logger import LogManager
+
 
 app = FastAPI()
-io_streams = {}
 
 # This fucks with my shit
 dbt.tracking.disable_tracking()
@@ -135,9 +136,9 @@ async def run_models(args: RunArgs):
 def run_dbt(task_id, args):
     path = fsapi.get_root_path(args.state_id)
     serialize_path = fsapi.get_path(args.state_id, 'manifest.msgpack')
+    log_path = fsapi.get_path(args.state_id, task_id, 'logs.stdout')
 
-    queue = io_streams[task_id]
-    log_manager = logging.LogManager(queue)
+    log_manager = logging.LogManager(log_path)
     log_manager.setup_handlers()
 
     # Deerialize repr
@@ -161,11 +162,8 @@ async def run_models(args: RunArgs, background_tasks: BackgroundTasks):
     # I need them sweet realtime logs....
     # I need need need em!!!
     import uuid
-    task_id = str(uuid.uuid4())
-
-    import multiprocessing
-    queue = multiprocessing.Queue(-1)
-    io_streams[task_id] = queue
+    # task_id = str(uuid.uuid4())
+    task_id = 'my_uuid'
 
     background_tasks.add_task(run_dbt, task_id, args)
 
@@ -249,14 +247,28 @@ class Task(BaseModel):
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    task_id = await websocket.receive_text()
-    queue = io_streams[task_id]
+    message = await websocket.receive_text()
+    message_data = json.loads(message)
 
-    subscriber = logging.getQueueSubscriber(queue)
+    # TODO: Assuming it's a tail command at offset 0
+    state_id = message_data['state_id']
+    task_id = message_data['task_id']
+    command = message_data['command']
+
+    log_path = fsapi.get_path(state_id, task_id, 'logs.stdout')
+
+    # with open(log_path) as fh:
+    # subscriber = logging.getQueueSubscriber(queue)
+    fh = open(log_path)
+    import time
     while True:
         try:
-            record = subscriber.recv()
-            await websocket.send_text(record.message)
+            # record = subscriber.recv()
+            res = fh.readline()
+            if len(res) == 0:
+                time.sleep(0.5)
+                continue
+            await websocket.send_text(res)
         # Queue is closed. Better way to handle this?
         except Exception:
             break

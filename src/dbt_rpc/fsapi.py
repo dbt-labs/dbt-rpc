@@ -6,13 +6,16 @@ ROOT_PATH = "./working-dir"
 def get_root_path(state_id):
     return os.path.join(ROOT_PATH, f"state-{state_id}")
 
-def get_path(state_id, filename):
-    return os.path.join(get_root_path(state_id), filename)
+def get_path(state_id, *path_parts):
+    return os.path.join(get_root_path(state_id), *path_parts)
 
-def write_file(path, contents):
+def ensure_dir_exists(path):
     dirname = os.path.dirname(path)
     if not os.path.exists(dirname):
         os.makedirs(dirname)
+
+def write_file(path, contents):
+    ensure_dir_exists(path)
 
     with open(path, 'wb') as fh:
         fh.write(contents.encode('utf-8'))
