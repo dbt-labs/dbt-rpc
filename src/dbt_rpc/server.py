@@ -10,22 +10,36 @@ from dbt.parser.rpc import RPCCallParser
 from dbt.rpc.node_runners import RPCExecuteRunner, RPCCompileRunner
 
 import uvicorn
-from fastapi import FastAPI, WebSocket, BackgroundTasks
+from fastapi import FastAPI, WebSocket, BackgroundTasks, HTTPException, Depends
 from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
 from typing import List
 
 import json, os, io
+import uuid
 
 from . import fsapi, logging
 
 from dbt.logger import LogManager
+from dbt.logger import GLOBAL_LOGGER as logger
 
+# ORM shit
+from sqlalchemy.orm import Session
+from . import crud, models, schemas
+from .database import SessionLocal, engine
 
+models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # This fucks with my shit
 dbt.tracking.disable_tracking()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 class UnparsedManifestBlob(BaseModel):
     state_id: str
@@ -133,15 +147,24 @@ async def run_models(args: RunArgs):
     }
 
 
-def run_dbt(task_id, args):
+def run_dbt(
+    task_id,
+    args,
+    db
+):
+    db_task = crud.get_task(db, task_id)
+
     path = fsapi.get_root_path(args.state_id)
     serialize_path = fsapi.get_path(args.state_id, 'manifest.msgpack')
     log_path = fsapi.get_path(args.state_id, task_id, 'logs.stdout')
 
+
     log_manager = logging.LogManager(log_path)
     log_manager.setup_handlers()
 
-    # Deerialize repr
+
+
+    # Deserialize repr
     with open (serialize_path, 'rb') as fh:
         packed = fh.read()
         manifest = Manifest.from_msgpack(packed)
@@ -149,28 +172,41 @@ def run_dbt(task_id, args):
     config = RuntimeConfig.from_args(Config.new(path))
     taskCls = RunTask(args, config)
 
+    crud.set_task_running(db, db_task)
+
     res = taskCls.run()
 
     log_manager.cleanup()
 
+    crud.set_task_done(db, db_task)
+
 
 @app.post("/run-async")
-async def run_models(args: RunArgs, background_tasks: BackgroundTasks):
+async def run_models(
+    args: RunArgs,
+    background_tasks: BackgroundTasks,
+    response_model=schemas.Task,
+    db: Session = Depends(get_db)
+):
+    task_id = str(uuid.uuid4())
+    log_path = fsapi.get_path(args.state_id, task_id, 'logs.stdout')
 
-    # I want to be able to capture the logs emitted here....
-    # how do i do that.....
-    # I need them sweet realtime logs....
-    # I need need need em!!!
-    import uuid
-    # task_id = str(uuid.uuid4())
-    task_id = 'my_uuid'
+    task = schemas.Task(
+        task_id=task_id,
+        state='pending',
+        command='dbt run',
+        log_path=log_path
+    )
 
-    background_tasks.add_task(run_dbt, task_id, args)
+    db_task = crud.get_task(db, task_id)
+    background_tasks.add_task(run_dbt, task_id, args, db)
+    if db_task:
+        db_task.state = 'pending'
+        db.commit()
+        return db_task
+        # raise HTTPException(status_code=400, detail="Task already registered")
 
-    return {
-        "parsing": args.state_id,
-        "task_id": task_id
-    }
+    return crud.create_task(db, task)
 
 @app.post("/preview")
 async def preview_sql(sql: SQLConfig):
@@ -245,7 +281,10 @@ class Task(BaseModel):
     task_id: str
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(
+    websocket: WebSocket,
+    db: Session = Depends(get_db),
+):
     await websocket.accept()
     message = await websocket.receive_text()
     message_data = json.loads(message)
@@ -255,23 +294,29 @@ async def websocket_endpoint(websocket: WebSocket):
     task_id = message_data['task_id']
     command = message_data['command']
 
-    log_path = fsapi.get_path(state_id, task_id, 'logs.stdout')
+    db_task = crud.get_task(db, task_id)
 
-    # with open(log_path) as fh:
-    # subscriber = logging.getQueueSubscriber(queue)
-    fh = open(log_path)
+    log_path = fsapi.get_path(state_id, task_id, 'logs.stdout')
+    logger.info("Got websocket req")
+
+    fh = None
     import time
-    while True:
-        try:
-            # record = subscriber.recv()
-            res = fh.readline()
-            if len(res) == 0:
+    # Awesome
+    while db_task.state != 'finished':
+        if not fh:
+            try:
+                fh = open(log_path)
+            except FileNotFoundError:
+                await websocket.send_text('Waiting for file...')
                 time.sleep(0.5)
                 continue
-            await websocket.send_text(res)
-        # Queue is closed. Better way to handle this?
-        except Exception:
-            break
 
+        line = fh.readline()
+        if len(line) == 0:
+            time.sleep(0.5)
+            db.refresh(db_task)
+            continue
+        await websocket.send_text(line)
+
+    fh.close()
     await websocket.close(code=1000)
-
