@@ -13,20 +13,11 @@ import uvicorn
 from fastapi import FastAPI, WebSocket, BackgroundTasks
 from pydantic import BaseModel
 from fastapi.encoders import jsonable_encoder
+from typing import List
 
 import json, os, io
 
-from . import fsapi
-
-# Logging bullshit
-import dbt.logger as dbt_logger
-from dbt.logger import GLOBAL_LOGGER as logger, log_manager
-import logging
-import logbook
-import logbook.queues
-import multiprocessing
-
-from typing import List
+from . import fsapi, logging
 
 
 app = FastAPI()
@@ -49,6 +40,7 @@ class Config(BaseModel):
 
     @classmethod
     def new(cls, project_dir):
+        # TODO: How do we handle creds more.... dynamically?
         return cls(
             project_dir=project_dir,
             profiles_dir="/Users/drew/.dbt"
@@ -68,8 +60,8 @@ class SQLConfig(BaseModel):
     sql: str
 
 @app.get("/")
-async def test():
-    return {"abc": 123}
+async def test(tasks: BackgroundTasks):
+    return {"abc": 123, "tasks": tasks.tasks}
 
 @app.post("/push")
 async def push_unparsed_manifest(manifest: UnparsedManifestBlob):
@@ -145,7 +137,7 @@ def run_dbt(task_id, args):
     serialize_path = fsapi.get_path(args.state_id, 'manifest.msgpack')
 
     queue = io_streams[task_id]
-    log_manager = LogManager(queue)
+    log_manager = logging.LogManager(queue)
     log_manager.setup_handlers()
 
     # Deerialize repr
@@ -260,7 +252,7 @@ async def websocket_endpoint(websocket: WebSocket):
     task_id = await websocket.receive_text()
     queue = io_streams[task_id]
 
-    subscriber = logbook.queues.MultiProcessingSubscriber(queue)
+    subscriber = logging.getQueueSubscriber(queue)
     while True:
         try:
             record = subscriber.recv()
@@ -271,57 +263,3 @@ async def websocket_endpoint(websocket: WebSocket):
 
     await websocket.close(code=1000)
 
-
-
-class LogManager(object):
-    def __init__(self, queue):
-        self.queue = queue
-        self.info_logs_redirect_handler = logbook.queues.MultiProcessingHandler(
-            queue=self.queue,
-            level=logbook.INFO,
-            bubble=True,
-            filter=self._dbt_logs_only_filter,
-        )
-        self.info_logs_redirect_handler.format_string = (
-            dbt_logger.STDOUT_LOG_FORMAT
-        )
-
-        # self.info_logs_redirect_handler = logbook.StreamHandler(
-        #     stream=self.out,
-        #     level=logbook.INFO,
-        #     bubble=True,
-        #     filter=self._dbt_logs_only_filter,
-        # )
-        # self.info_logs_redirect_handler.format_string = (
-        #     dbt_logger.STDOUT_LOG_FORMAT
-        # )
-
-    def _dbt_logs_only_filter(self, record, handler):
-        """
-        DUPLICATE OF LogbookStepLogsStreamWriter._dbt_logs_only_filter
-        """
-        return record.channel.split(".")[0] == "dbt"
-
-    def setup_handlers(self):
-        logger.info("Setting up log handlers...")
-
-        dbt_logger.log_manager.objects = [
-            handler
-            for handler in dbt_logger.log_manager.objects
-            if type(handler) is not logbook.NullHandler
-        ]
-
-        handlers = [
-            logbook.NullHandler(),
-            dbt_logger.log_manager,
-        ]
-
-        handlers.append(self.info_logs_redirect_handler)
-        self.log_context = logbook.NestedSetup(handlers)
-        self.log_context.push_application()
-
-        logger.info("Done setting up log handlers.")
-
-    def cleanup(self):
-        self.log_context.pop_application()
-        self.queue.close()
