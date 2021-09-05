@@ -18,8 +18,13 @@ def write_file(path, contents):
     ensure_dir_exists(path)
 
     with open(path, 'wb') as fh:
-        fh.write(contents.encode('utf-8'))
+        if isinstance(contents, str):
+            contents = contents.encode('utf-8')
+        fh.write(contents)
 
+def read_file(path):
+    with open(path, 'rb') as fh:
+        return fh.read()
 
 def write_unparsed_manifest_to_disk(state_id, filedict):
     root_path = get_root_path(state_id)

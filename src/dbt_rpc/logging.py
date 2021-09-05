@@ -5,15 +5,28 @@ import logbook.queues
 import multiprocessing
 
 import dbt.logger as dbt_logger
-from dbt.logger import GLOBAL_LOGGER as logger
 
-from . import fsapi
+# from dbt.logger import GLOBAL_LOGGER as logger
+
+import logging
+
+from .services import filesystem_service
+
+GLOBAL_LOGGER = logging.getLogger(__name__)
+GLOBAL_LOGGER.setLevel(logging.DEBUG)
+stdout = logging.StreamHandler()
+stdout.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+stdout.setFormatter(formatter)
+GLOBAL_LOGGER.addHandler(stdout)
+logger = GLOBAL_LOGGER
+
 
 class LogManager(object):
     def __init__(self, log_path):
         self.log_path = log_path
 
-        fsapi.ensure_dir_exists(self.log_path)
+        filesystem_service.ensure_dir_exists(self.log_path)
 
         json_formatter = dbt_logger.JsonFormatter(
             format_string=dbt_logger.STDOUT_LOG_FORMAT

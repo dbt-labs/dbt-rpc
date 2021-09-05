@@ -1,8 +1,15 @@
 
 from sqlalchemy.orm import Session
+from dbt_rpc.database import SessionLocal
 
 from . import models, schemas
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 def get_task(db: Session, task_id: str):
     return db.query(models.Task).filter(models.Task.task_id == task_id).first()
