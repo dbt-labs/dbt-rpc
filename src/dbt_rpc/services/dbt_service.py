@@ -26,7 +26,7 @@ class dbtConfig(BaseModel):
         # TODO: How do we handle creds more.... dynamically?
         return cls(
             project_dir=project_dir,
-            profiles_dir="/Users/drew/.dbt"
+            profiles_dir=os.path.expanduser("~/.dbt")
         )
 
 
