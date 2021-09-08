@@ -31,7 +31,7 @@ class dbtConfig(BaseModel):
 
 
 def disable_tracking():
-    # This fucks with my shit
+    # This messes with my stuff
     dbt.tracking.disable_tracking()
 
 def _get_dbt_config(project_path):
@@ -63,8 +63,8 @@ def dbt_run_sync(project_path, args, manifest):
     # Create the task
     task = RunTask(args, config)
 
-    # LOL - I can monkeypatch taskCls.load_manifest to return _our_ manifest
-    # does that work?
+    # Wow! We can monkeypatch taskCls.load_manifest to return _our_ manifest
+    # TODO : Let's update Core to support this kind of thing more natively?
     task.load_manifest = no_op
     task.manifest = manifest
 

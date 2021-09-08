@@ -12,10 +12,10 @@ from .services import dbt_service
 COMPATIBILITY_MODE = (os.getenv("DBT_RPC_COMPAT_MODE", "0") == "1")
 
 # Where... does this actually go?
-# And what the fuck do we do about migrations lol?
+# And what the heck do we do about migrations?
 models.Base.metadata.create_all(bind=engine)
 
-# TODO : This messes with shit
+# TODO : This messes with stuff
 dbt_service.disable_tracking()
 
 

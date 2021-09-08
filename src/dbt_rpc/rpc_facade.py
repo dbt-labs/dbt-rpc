@@ -149,7 +149,7 @@ async def jsonrpc():
 
 # RPC API
 
-# This is gross..... and it's what you must do lol
+# This is gross..... can we not do this?
 # from pydantic import BaseModel
 # class CommandParams(BaseModel):
 #     task_tags: Optional[Dict[str, Any]] = None

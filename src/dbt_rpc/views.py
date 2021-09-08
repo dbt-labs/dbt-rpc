@@ -13,7 +13,7 @@ from .services import dbt_service
 from .services import task_service
 from .logging import GLOBAL_LOGGER as logger
 
-# ORM shit
+# ORM stuff
 from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from .database import SessionLocal, engine
