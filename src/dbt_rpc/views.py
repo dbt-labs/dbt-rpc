@@ -7,7 +7,6 @@ from fastapi.encoders import jsonable_encoder
 from typing import List, Optional, Dict, Any, Union
 
 import json, os, io
-import uuid
 
 from .services import filesystem_service
 from .services import dbt_service
@@ -78,7 +77,7 @@ def parse_project(state: State):
 
     if not os.path.exists(serialize_path):
         logger.info(f"Parsing manifest from filetree")
-        manifest = dbt_service.parse_to_manifest(path, state.state_id)
+        manifest = dbt_service.parse_to_manifest(path)
 
         logger.info("Serializing as messagepack file")
         dbt_service.serialize_manifest(manifest, serialize_path)

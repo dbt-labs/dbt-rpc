@@ -43,7 +43,7 @@ def _get_dbt_config(project_path):
 
     return config
 
-def parse_to_manifest(project_path, state_id):
+def parse_to_manifest(project_path):
     config = _get_dbt_config(project_path)
     return ManifestLoader.get_full_manifest(config)
 

@@ -9,6 +9,7 @@ import dbt.logger as dbt_logger
 # from dbt.logger import GLOBAL_LOGGER as logger
 
 import logging
+import io
 
 from .services import filesystem_service
 
@@ -22,17 +23,18 @@ GLOBAL_LOGGER.addHandler(stdout)
 logger = GLOBAL_LOGGER
 
 
+json_formatter = dbt_logger.JsonFormatter(
+    format_string=dbt_logger.STDOUT_LOG_FORMAT
+)
+
 class LogManager(object):
     def __init__(self, log_path):
         self.log_path = log_path
 
         filesystem_service.ensure_dir_exists(self.log_path)
 
-        json_formatter = dbt_logger.JsonFormatter(
-            format_string=dbt_logger.STDOUT_LOG_FORMAT
-        )
 
-        self.logs_redirect_handler = logbook.FileHandler(
+        logs_redirect_handler = logbook.FileHandler(
             filename=self.log_path,
             level=logbook.DEBUG,
             bubble=True,
@@ -41,7 +43,11 @@ class LogManager(object):
         )
 
         # Big hack?
-        self.logs_redirect_handler.formatter = json_formatter
+        logs_redirect_handler.formatter = json_formatter
+
+        self.handlers = [
+            logs_redirect_handler,
+        ]
 
         dbt_logger.log_manager.set_path(None)
 
@@ -60,10 +66,7 @@ class LogManager(object):
             if type(handler) is not logbook.NullHandler
         ]
 
-        handlers = [
-            logbook.NullHandler(),
-            self.logs_redirect_handler
-        ]
+        handlers = [logbook.NullHandler()] + self.handlers
 
         self.log_context = logbook.NestedSetup(handlers)
         self.log_context.push_application()
@@ -73,5 +76,27 @@ class LogManager(object):
     def cleanup(self):
         self.log_context.pop_application()
 
-def getQueueSubscriber(queue):
-    return logbook.queues.MultiProcessingSubscriber(queue)
+
+class CapturingLogManager(LogManager):
+    def __init__(self, log_path):
+        super().__init__(log_path)
+
+        self._stream = io.StringIO()
+        capture_handler = logbook.StreamHandler(
+            stream=self._stream,
+            level=logbook.DEBUG,
+            bubble=True,
+            filter=self._dbt_logs_only_filter,
+        )
+
+        capture_handler.formatter = json_formatter
+
+        self.handlers += [capture_handler]
+
+    def getLogs(self):
+        # Be a good citizen with the seek pos
+        pos = self._stream.tell()
+        self._stream.seek(0)
+        res = self._stream.read().split("\n")
+        self._stream.seek(pos)
+        return res

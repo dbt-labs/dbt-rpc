@@ -22,7 +22,6 @@ def run_dbt(task_id, args, db):
 
     logger.info(f"Running dbt ({task_id}) - deserializing manifest {serialize_path}")
 
-    # TODO... we don't use this!
     manifest = dbt_service.deserialize_manifest(serialize_path)
 
     crud.set_task_running(db, db_task)
@@ -67,7 +66,7 @@ def _wait_for_file(path):
             time.sleep(0.5)
             continue
     else:
-        raise HTTPException(status_code=500, detail="No log file appeared in designated timeout")
+        raise RuntimeException("No log file appeared in designated timeout")
     return fh
 
 def _read_until_empty(fh):
@@ -84,6 +83,7 @@ def tail_logs_for_path(
     live=True
 ):
     db_task = crud.get_task(db, task_id)
+    logger.info(f"Waiting for file @ {db_task.log_path}")
     fh = _wait_for_file(db_task.log_path)
 
     if live:
@@ -92,11 +92,12 @@ def tail_logs_for_path(
     try:
         while db_task.state != 'finished':
             yield from _read_until_empty(fh)
-            time.sleep(0.1)
+            time.sleep(0.5)
             db.refresh(db_task)
 
         # Drain any lines accumulated after end of task
         # If we didn't do this, some lines could be omitted
+        logger.info(f"Draining logs from file")
         yield from _read_until_empty(fh)
 
     finally:
