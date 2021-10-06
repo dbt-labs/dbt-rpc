@@ -15,7 +15,7 @@ import yaml
 import dbt.flags
 from dbt.adapters.factory import get_adapter, register_adapter
 from dbt.logger import log_manager
-from dbt.main import handle_and_check
+from dbt_rpc.__main__ import handle_and_check
 from dbt.config import RuntimeConfig
 
 
@@ -43,7 +43,7 @@ class ServerProcess(dbt.flags.MP_CONTEXT.Process):
         self.criteria = criteria
         self.error = None
         handle_and_check_args = [
-            'rpc', '--log-cache-events',
+            'serve', '--log-cache-events',
             '--port', str(self.port),
             '--profiles-dir', profiles_dir
         ]

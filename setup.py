@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from setuptools import setup
+from setuptools import setup, find_namespace_packages
 
 
 def read(fname):
@@ -20,6 +20,7 @@ setup(
     author="dbt Labs",
     author_email="info@dbtlabs.com",
     url="https://github.com/dbt-labs/dbt",
+    packages=find_namespace_packages(include=['dbt_rpc', 'dbt_rpc.*']),
     include_package_data=True,
     test_suite='tests',
     entry_points={
