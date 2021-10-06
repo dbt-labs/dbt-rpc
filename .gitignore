@@ -1,10 +1,12 @@
 .mypy_cache/
 /.coverage
 /.coverage.*
-/.nox/
+/.tox/
 /.python-version
 /.pytype/
 /dist/
 /docs/_build/
-/src/*.egg-info/
+*.egg-info/
+/env/
+test.env
 __pycache__/
