@@ -19,12 +19,14 @@ from dbt_rpc.task.server import RPCServerTask
 from dbt.profiler import profiler
 from dbt.logger import GLOBAL_LOGGER as logger, log_manager
 
+
 class RPCArgumentParser(DBTArgumentParser):
     def exit(self, status=0, message=None):
         if status == 0:
             return
         else:
             raise TypeError(message)
+
 
 def _build_rpc_subparser(subparsers, base_subparser):
     sub = subparsers.add_parser(
@@ -305,6 +307,7 @@ def main(args=None):
             exit_code = ExitCodes.UnhandledError.value
 
     sys.exit(exit_code)
+
 
 if __name__ == "__main__":
     main()
