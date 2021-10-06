@@ -120,6 +120,7 @@ class RPCDocsGenerateParameters(RPCParameters):
 
 @dataclass
 class RPCBuildParameters(RPCParameters):
+    resource_types: Optional[List[str]] = None
     threads: Optional[int] = None
     models: Union[None, str, List[str]] = None
     select: Union[None, str, List[str]] = None
