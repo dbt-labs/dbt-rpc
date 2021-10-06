@@ -86,12 +86,10 @@ jobs:
           persist-credentials: false
 
       - name: Set up postgres
-        steps:
-          - shell: bash
-            run: |
-              sudo systemctl start postgresql.service
-              pg_isready
-              sudo -u postgres bash tests/setup_db.sh
+        run: |
+          sudo systemctl start postgresql.service
+          pg_isready
+          sudo -u postgres bash tests/setup_db.sh
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
