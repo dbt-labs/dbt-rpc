@@ -72,14 +72,15 @@ class RPCListParameters(RPCParameters):
     select: Union[None, str, List[str]] = None
     selector: Optional[str] = None
     output: Optional[str] = 'json'
+    output_keys: Optional[List[str]] = None
 
 
 @dataclass
 class RPCRunParameters(RPCParameters):
     threads: Optional[int] = None
     models: Union[None, str, List[str]] = None
-    exclude: Union[None, str, List[str]] = None
     select: Union[None, str, List[str]] = None
+    exclude: Union[None, str, List[str]] = None
     selector: Optional[str] = None
     state: Optional[str] = None
     defer: Optional[bool] = None
@@ -121,9 +122,8 @@ class RPCDocsGenerateParameters(RPCParameters):
 @dataclass
 class RPCBuildParameters(RPCParameters):
     resource_types: Optional[List[str]] = None
-    threads: Optional[int] = None
-    models: Union[None, str, List[str]] = None
     select: Union[None, str, List[str]] = None
+    threads: Optional[int] = None
     exclude: Union[None, str, List[str]] = None
     selector: Optional[str] = None
     state: Optional[str] = None
@@ -200,6 +200,8 @@ class RPCRunOperationParameters(RPCParameters):
 class RPCSourceFreshnessParameters(RPCParameters):
     threads: Optional[int] = None
     select: Union[None, str, List[str]] = None
+    exclude: Union[None, str, List[str]] = None
+    selector: Optional[str] = None
 
 
 @dataclass
