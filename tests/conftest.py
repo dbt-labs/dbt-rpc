@@ -98,40 +98,6 @@ def postgres_profile_data(unique_schema):
     }
 
 
-def snowflake_profile_data(unique_schema):
-    return {
-        'config': {
-            'send_anonymous_usage_stats': False
-        },
-        'test': {
-            'outputs': {
-                'default': {
-                    'type': 'snowflake',
-                    'threads': 4,
-                    'account': os.getenv('SNOWFLAKE_TEST_ACCOUNT'),
-                    'user': os.getenv('SNOWFLAKE_TEST_USER'),
-                    'password': os.getenv('SNOWFLAKE_TEST_PASSWORD'),
-                    'database': os.getenv('SNOWFLAKE_TEST_DATABASE'),
-                    'schema': unique_schema,
-                    'warehouse': os.getenv('SNOWFLAKE_TEST_WAREHOUSE'),
-                },
-                'keepalives': {
-                    'type': 'snowflake',
-                    'threads': 4,
-                    'account': os.getenv('SNOWFLAKE_TEST_ACCOUNT'),
-                    'user': os.getenv('SNOWFLAKE_TEST_USER'),
-                    'password': os.getenv('SNOWFLAKE_TEST_PASSWORD'),
-                    'database': os.getenv('SNOWFLAKE_TEST_DATABASE'),
-                    'schema': unique_schema,
-                    'warehouse': os.getenv('SNOWFLAKE_TEST_WAREHOUSE'),
-                    'client_session_keep_alive': True,
-                },
-            },
-            'target': 'default',
-        },
-    }
-
-
 @pytest.fixture
 def dbt_profile_data(unique_schema, pytestconfig):
     profile_name = pytestconfig.getoption('profile')
