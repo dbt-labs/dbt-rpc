@@ -1,0 +1,7 @@
+flake8
+mypy==0.782
+pytest
+pytest-xdist
+pytest-dotenv
+tox>=3.13
+pyyaml
