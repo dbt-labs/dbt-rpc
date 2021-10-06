@@ -1,0 +1,6 @@
+flake8
+pytest
+pytest-xdist
+pytest-dotenv
+tox>=3.13
+pyyaml
