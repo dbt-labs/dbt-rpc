@@ -43,4 +43,4 @@ psql -c 'CREATE DATABASE "dbtMixedCase";'
 psql -c 'GRANT CREATE, CONNECT ON DATABASE "dbtMixedCase" TO root WITH GRANT OPTION;'
 
 set +x
-b
+
