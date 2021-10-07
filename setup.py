@@ -8,7 +8,7 @@ def read(fname):
 
 
 package_name = "dbt-rpc"
-package_version = "0.21.0"
+package_version = "0.1.0"
 description = """ TODO """
 
 
