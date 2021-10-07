@@ -14,10 +14,24 @@ import dbt.tracking
 
 from dbt.utils import ExitCodes
 from dbt.config.profile import DEFAULT_PROFILES_DIR, read_user_config
-from dbt.exceptions import RuntimeException, InternalException
+from dbt.exceptions import (
+    RuntimeException,
+    InternalException,
+    NotImplementedException,
+    FailedToConnectException
+)
 
 from dbt_rpc.task.server import RPCServerTask
 import dbt_rpc.flags as flags
+
+
+def initialize_tracking_from_flags():
+    # NOTE: this is copied from dbt-core
+    # Setting these used to be in UserConfig, but had to be moved here
+    if flags.SEND_ANONYMOUS_USAGE_STATS:
+        dbt.tracking.initialize_tracking(flags.PROFILES_DIR)
+    else:
+        dbt.tracking.do_not_track()
 
 
 class DBTVersion(argparse.Action):
@@ -159,7 +173,7 @@ def handle_and_check(args):
         # Set flags from args, user config, and env vars
         user_config = read_user_config(flags.PROFILES_DIR)  # This is read again later
         flags.set_from_args(parsed, user_config)
-        dbt.tracking.initialize_from_flags()
+        initialize_tracking_from_flags()
         # Set log_format from flags
         parsed.cls.set_log_format()
 
@@ -193,8 +207,8 @@ def track_run(task):
         dbt.tracking.track_invocation_end(
             config=task.config, args=task.args, result_type="ok"
         )
-    except (dbt.exceptions.NotImplementedException,
-            dbt.exceptions.FailedToConnectException) as e:
+    except (NotImplementedException,
+            FailedToConnectException) as e:
         logger.error('ERROR: {}'.format(e))
         dbt.tracking.track_invocation_end(
             config=task.config, args=task.args, result_type="error"
