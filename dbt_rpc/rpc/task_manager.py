@@ -154,7 +154,7 @@ class TaskManager:
                     f'Manifest should not be None if the last parse state is '
                     f'{state}'
                 )
-            return task(self.args, self.config, self.manifest)
+            return task(deepcopy(self.args), self.config, self.manifest)
 
     def rpc_task(
         self, method_name: str
@@ -166,7 +166,7 @@ class TaskManager:
             elif issubclass(task, RemoteManifestMethod):
                 return self._get_manifest_callable(task)
             elif issubclass(task, RemoteMethod):
-                return task(self.args, self.config)
+                return task(deepcopy(self.args), self.config)
             else:
                 raise dbt.exceptions.InternalException(
                     f'Got a task with an invalid type! {task} with method '
