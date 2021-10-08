@@ -20,9 +20,9 @@ from dbt.exceptions import (
     NotImplementedException,
     FailedToConnectException
 )
+import dbt.flags as flags
 
 from dbt_rpc.task.server import RPCServerTask
-import dbt_rpc.flags as flags
 
 
 def initialize_tracking_from_flags():

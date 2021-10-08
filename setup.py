@@ -28,12 +28,13 @@ setup(
             'dbt-rpc = dbt_rpc.__main__:main',
         ],
     },
+    # TODO: use packages from PyPI once available for dbt-core 1.0
     install_requires=[
-        'dbt-core==0.21.0',
-        'dbt-postgres==0.21.0',
-        'dbt-bigquery==0.21.0',
-        'dbt-snowflake==0.21.0',
-        'dbt-redshift==0.21.0',
+        'dbt-core @ git+https://github.com/dbt-labs/dbt.git#egg=dbt-core&subdirectory=core',
+        'dbt-postgres @ git+https://github.com/dbt-labs/dbt.git#egg=dbt-postgres&subdirectory=plugins/postgres',
+        'dbt-bigquery @ git+https://github.com/dbt-labs/dbt-bigquery.git#egg=dbt-bigquery',
+        'dbt-snowflake @ git+https://github.com/dbt-labs/dbt-snowflake.git#egg=dbt-snowflake',
+        'dbt-redshift @ git+https://github.com/dbt-labs/dbt-redshift.git#egg=dbt-redshift',
     ],
     zip_safe=False,
     classifiers=[

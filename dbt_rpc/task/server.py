@@ -25,8 +25,6 @@ from dbt_rpc.rpc.response_manager import ResponseManager
 from dbt_rpc.rpc.task_manager import TaskManager
 from dbt.task.base import ConfiguredTask
 from dbt.utils import ForgivingJSONEncoder
-from dbt_rpc import flags
-
 
 # SIG_DFL ends up killing the process if multiple build up, but SIG_IGN just
 # peacefully carries on
@@ -87,14 +85,6 @@ class RPCServerTask(ConfiguredTask):
             self.args, self.config, TaskTypes(tasks)
         )
         signal.signal(signal.SIGHUP, self._sighup_handler)
-
-    @classmethod
-    def set_log_format(cls):
-        """ Copied from dbt-core """
-        if flags.LOG_FORMAT == 'json':
-            log_manager.format_json()
-        else:
-            log_manager.format_text()
 
     @classmethod
     def pre_init_hook(cls, args):
