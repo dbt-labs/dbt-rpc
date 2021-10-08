@@ -26,7 +26,6 @@ from dbt_rpc.rpc.task_manager import TaskManager
 from dbt.task.base import ConfiguredTask
 from dbt.utils import ForgivingJSONEncoder
 
-
 # SIG_DFL ends up killing the process if multiple build up, but SIG_IGN just
 # peacefully carries on
 SIG_IGN = signal.SIG_IGN

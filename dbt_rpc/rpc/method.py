@@ -1,6 +1,5 @@
 import inspect
 from abc import abstractmethod
-from copy import deepcopy
 from typing import List, Optional, Type, TypeVar, Generic, Dict, Any
 
 from dbt.dataclass_schema import dbtClassMixin, ValidationError
@@ -11,7 +10,6 @@ from dbt.exceptions import NotImplementedException, InternalException
 Parameters = TypeVar('Parameters', bound=RPCParameters)
 Result = TypeVar('Result', bound=RemoteResult)
 
-
 # If you call recursive_subclasses on a subclass of BaseRemoteMethod, it should
 # only return subtypes of the given subclass.
 T = TypeVar('T', bound='RemoteMethod')
@@ -21,7 +19,7 @@ class RemoteMethod(Generic[Parameters, Result]):
     METHOD_NAME: Optional[str] = None
 
     def __init__(self, args, config):
-        self.args = deepcopy(args)
+        self.args = args
         self.config = config
 
     @classmethod

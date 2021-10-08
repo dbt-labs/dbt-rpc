@@ -53,7 +53,7 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
             )
 
     def set_args(self, params: RPCCliParameters) -> None:
-        # more import cycles :(
+        # NOTE: `parse_args` is pinned to the version of dbt-core installed!
         from dbt.main import parse_args
         from dbt_rpc.__main__ import RPCArgumentParser
         split = shlex.split(params.cli)
