@@ -30,7 +30,6 @@ setup(
     },
     # TODO: use packages from PyPI once available for dbt-core 1.0
     install_requires=[
-        'dbt-core @ git+https://github.com/dbt-labs/dbt.git#egg=dbt-core&subdirectory=core',
         'dbt-postgres @ git+https://github.com/dbt-labs/dbt.git#egg=dbt-postgres&subdirectory=plugins/postgres',
         'dbt-bigquery @ git+https://github.com/dbt-labs/dbt-bigquery.git#egg=dbt-bigquery',
         'dbt-snowflake @ git+https://github.com/dbt-labs/dbt-snowflake.git#egg=dbt-snowflake',
