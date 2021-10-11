@@ -9,7 +9,7 @@ def read(fname):
 
 package_name = "dbt-rpc"
 package_version = "0.1.0"
-description = """ TODO """
+description = """ A JSON RPC server that provides and interface to programmically interact with dbt projects. """
 
 
 setup(
@@ -19,7 +19,7 @@ setup(
     long_description=description,
     author="dbt Labs",
     author_email="info@dbtlabs.com",
-    url="https://github.com/dbt-labs/dbt",
+    url="https://github.com/dbt-labs/dbt-rpc",
     packages=find_namespace_packages(include=['dbt_rpc', 'dbt_rpc.*']),
     include_package_data=True,
     test_suite='tests',
@@ -28,12 +28,9 @@ setup(
             'dbt-rpc = dbt_rpc.__main__:main',
         ],
     },
-    # TODO: use packages from PyPI once available for dbt-core 1.0
     install_requires=[
-        'dbt-postgres @ git+https://github.com/dbt-labs/dbt.git#egg=dbt-postgres&subdirectory=plugins/postgres',
-        'dbt-bigquery @ git+https://github.com/dbt-labs/dbt-bigquery.git#egg=dbt-bigquery',
-        'dbt-snowflake @ git+https://github.com/dbt-labs/dbt-snowflake.git#egg=dbt-snowflake',
-        'dbt-redshift @ git+https://github.com/dbt-labs/dbt-redshift.git#egg=dbt-redshift',
+        'json-rpc>=1.12,<2',
+        'dbt-core~=1.0.0b1'
     ],
     zip_safe=False,
     classifiers=[
