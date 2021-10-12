@@ -91,7 +91,6 @@ def test_rpc_deps_packages(project_root, profiles_root, dbt_profile, unique_sche
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
         criteria='error',
     )
     with querier_ctx as querier:
@@ -162,7 +161,6 @@ def test_rpc_deps_after_list(project_root, profiles_root, dbt_profile, unique_sc
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
         criteria='error',
     )
     with querier_ctx as querier:

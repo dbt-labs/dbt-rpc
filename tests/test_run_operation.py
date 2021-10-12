@@ -33,7 +33,6 @@ def test_run_operation(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -80,7 +79,6 @@ def test_run_operation_cli(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
