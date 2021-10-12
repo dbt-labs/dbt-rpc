@@ -21,7 +21,6 @@ def test_rpc_seed_threads(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -50,7 +49,6 @@ def test_rpc_seed_include_exclude(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -79,7 +77,6 @@ def test_rpc_seed_state(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
     with querier_ctx as querier:
         state_dir = os.path.join(project_root, 'state')

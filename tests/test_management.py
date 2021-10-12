@@ -18,7 +18,6 @@ def test_rpc_basics(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -77,7 +76,6 @@ def test_rpc_status_error(project_root, profiles_root, dbt_profile, unique_schem
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
         criteria='error',
     )
     with querier_ctx as querier:
@@ -143,7 +141,6 @@ def test_gc_change_interval(project_root, profiles_root, dbt_profile, unique_sch
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -190,7 +187,6 @@ def test_ps_poll_output_match(project_root, profiles_root, dbt_profile, unique_s
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -265,7 +261,6 @@ def test_get_status(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -314,7 +309,6 @@ def test_missing_tag_sighup(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
     with querier_ctx as querier:
         # everything is fine
@@ -354,7 +348,6 @@ def test_get_manifest(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:

@@ -35,7 +35,6 @@ def test_rpc_test_threads(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
     with querier_ctx as querier:
         # first run dbt to get the model built
@@ -77,7 +76,6 @@ def test_rpc_test_state(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
     with querier_ctx as querier:
         state_dir = os.path.join(project_root, 'state')

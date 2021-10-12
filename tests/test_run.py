@@ -20,7 +20,6 @@ def test_rpc_run_threads(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
     with querier_ctx as querier:
         results = querier.async_wait_for_result(querier.run(threads=5))
@@ -46,7 +45,6 @@ def test_rpc_run_vars(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -70,7 +68,6 @@ def test_rpc_run_vars_compiled(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
     with querier_ctx as querier:
         results = querier.async_wait_for_result(querier.cli_args('--no-partial-parse run --vars "{materialized_var: table}"'))
@@ -93,7 +90,6 @@ def test_rpc_run_state_defer(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
     with querier_ctx as querier:
         state_dir = os.path.join(project_root, 'state')
