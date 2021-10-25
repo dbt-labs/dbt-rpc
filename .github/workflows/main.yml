@@ -24,6 +24,9 @@ on:
       - "move-tests2"
   pull_request:
   workflow_dispatch:
+  # run this once per night to ensure no regressions from latest dbt-core changes
+  schedule:
+    - cron: '0 5 * * *' # 5 UTC
 
 permissions: read-all
 
