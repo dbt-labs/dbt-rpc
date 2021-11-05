@@ -622,7 +622,7 @@ class ProjectDefinition:
         self._write_values(project_dir, remove, 'snapshots', self.snapshots)
 
     def write_seeds(self, project_dir, remove=False):
-        self._write_values(project_dir, remove, 'data', self.seeds)
+        self._write_values(project_dir, remove, 'seeds', self.seeds)
 
     def write_to(self, project_dir, remove=False):
         if remove:
