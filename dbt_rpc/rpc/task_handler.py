@@ -12,7 +12,7 @@ from typing_extensions import Protocol
 from dbt.dataclass_schema import dbtClassMixin, ValidationError
 
 import dbt.exceptions
-import dbt.flags
+from dbt.flags import env_set_truthy
 import dbt.tracking
 from dbt.adapters.factory import (
     cleanup_connections, load_plugin, register_adapter,
@@ -47,6 +47,9 @@ from queue import Queue  # noqa
 
 def sigterm_handler(signum, frame):
     raise dbt.exceptions.RPCKilledException(signum)
+
+
+SINGLE_THREADED_HANDLER = env_set_truthy('DBT_SINGLE_THREADED_HANDLER')
 
 
 class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
@@ -320,7 +323,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
     def _single_threaded(self):
         return bool(
             self.task.args.single_threaded or
-            dbt.flags.SINGLE_THREADED_HANDLER
+            SINGLE_THREADED_HANDLER
         )
 
     @property
