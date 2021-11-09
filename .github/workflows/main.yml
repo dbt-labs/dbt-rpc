@@ -81,6 +81,7 @@ jobs:
     env:
       TOXENV: "py"
       PYTEST_ADDOPTS: "-v --color=yes"
+      DBT_USE_LEGACY_LOGGER: True
 
     steps:
       - name: Check out the repository
