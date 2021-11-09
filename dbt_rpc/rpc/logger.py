@@ -13,6 +13,10 @@ from dbt_rpc.contracts.rpc import (
 )
 from dbt.exceptions import InternalException
 from dbt.utils import restrict_to
+import dbt.flags as dbt_flags
+
+dbt_flags.USE_LEGACY_LOGGER = True
+
 
 
 class QueueMessageType(StrEnum):
