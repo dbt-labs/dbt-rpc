@@ -44,7 +44,6 @@ def test_source_snapshot_freshness(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:
@@ -105,7 +104,6 @@ def test_source_freshness(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
 
     with querier_ctx as querier:

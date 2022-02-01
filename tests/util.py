@@ -1,7 +1,6 @@
 import base64
 import json
 import os
-import pytest
 import random
 import signal
 import socket
@@ -542,10 +541,12 @@ def rpc_server(
     cli_vars = '{{test_run_schema: {}}}'.format(schema)
 
     proc = _first_server(project_dir, cli_vars, profiles_dir, criteria, target)
-    yield proc
-    if proc.is_alive():
-        os.kill(proc.pid, signal.SIGKILL)
-        proc.join()
+    try:
+        yield proc
+    finally:
+        if proc.is_alive():
+            os.kill(proc.pid, signal.SIGKILL)
+            proc.join()
 
 
 class ProjectDefinition:
@@ -621,7 +622,7 @@ class ProjectDefinition:
         self._write_values(project_dir, remove, 'snapshots', self.snapshots)
 
     def write_seeds(self, project_dir, remove=False):
-        self._write_values(project_dir, remove, 'data', self.seeds)
+        self._write_values(project_dir, remove, 'seeds', self.seeds)
 
     def write_to(self, project_dir, remove=False):
         if remove:
@@ -665,9 +666,9 @@ def execute(adapter, sql):
 
 
 @contextmanager
-def built_schema(project_dir, schema, profiles_dir, test_kwargs, project_def):
+def built_schema(project_dir, schema, profiles_dir, project_def):
     # make our args, write our project out
-    args = TestArgs(profiles_dir=profiles_dir, kwargs=test_kwargs)
+    args = TestArgs(profiles_dir=profiles_dir)
     project_def.write_to(project_dir)
     # build a config of our own
     os.chdir(project_dir)
@@ -692,7 +693,6 @@ def get_querier(
     project_dir,
     profiles_dir,
     schema,
-    test_kwargs,
     criteria='ready',
     target=None,
 ):
@@ -702,7 +702,7 @@ def get_querier(
     )
     schema_ctx = built_schema(
         project_dir=project_dir, schema=schema, profiles_dir=profiles_dir,
-        test_kwargs={}, project_def=project_def,
+        project_def=project_def,
     )
     with schema_ctx, server_ctx as server:
         yield Querier(server)

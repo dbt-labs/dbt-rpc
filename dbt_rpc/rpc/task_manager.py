@@ -38,6 +38,9 @@ from dbt import helper_types  # noqa
 WrappedHandler = Callable[..., Dict[str, Any]]
 
 
+SINGLE_THREADED_WEBSERVER = flags.env_set_truthy('DBT_SINGLE_THREADED_WEBSERVER')
+
+
 class UnconditionalError:
     def __init__(self, exception: dbt.exceptions.Exception):
         self.exception = dbt_error(exception)
@@ -91,7 +94,7 @@ class TaskManager:
         self.reload_manifest()
 
     def single_threaded(self):
-        return flags.SINGLE_THREADED_WEBSERVER or self.args.single_threaded
+        return SINGLE_THREADED_WEBSERVER or self.args.single_threaded
 
     def _reload_task_manager_thread(self, reloader: ManifestReloader):
         """This function can only be running once at a time, as it runs in the

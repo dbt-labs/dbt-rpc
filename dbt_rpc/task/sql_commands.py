@@ -4,7 +4,7 @@ import threading
 from datetime import datetime
 from typing import Dict, Any
 
-from dbt import flags
+from dbt.flags import env_set_truthy
 from dbt.adapters.factory import get_adapter
 from dbt.clients.jinja import extract_toplevel_blocks
 from dbt.config.runtime import RuntimeConfig
@@ -24,6 +24,9 @@ from dbt.task.run import RunTask
 from .base import RPCTask
 
 
+SINGLE_THREADED_HANDLER = env_set_truthy('DBT_SINGLE_THREADED_HANDLER')
+
+
 def add_new_refs(
     manifest: Manifest,
     config: RuntimeConfig,
@@ -33,7 +36,7 @@ def add_new_refs(
     """Given a new node that is not in the manifest, insert the new node
     into it as if it were part of regular ref processing.
     """
-    if config.args.single_threaded or flags.SINGLE_THREADED_HANDLER:
+    if config.args.single_threaded or SINGLE_THREADED_HANDLER:
         manifest = manifest.deepcopy()
     # it's ok for macros to silently override a local project macro name
     manifest.macros.update(macros)

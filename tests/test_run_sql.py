@@ -18,7 +18,6 @@ def test_rpc_run_sql_nohang(
         project_dir=project_root,
         profiles_dir=profiles_root,
         schema=unique_schema,
-        test_kwargs={},
     )
     with querier_ctx as querier:
         querier.async_wait_for_result(querier.run_sql('select 1 as id'))

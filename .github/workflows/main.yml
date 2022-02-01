@@ -24,6 +24,9 @@ on:
       - "move-tests2"
   pull_request:
   workflow_dispatch:
+  # run this once per night to ensure no regressions from latest dbt-core changes
+  schedule:
+    - cron: '0 5 * * *' # 5 UTC
 
 permissions: read-all
 
@@ -73,11 +76,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9]
 
     env:
       TOXENV: "py"
       PYTEST_ADDOPTS: "-v --color=yes"
+      DBT_ENABLE_LEGACY_LOGGER: True
 
     steps:
       - name: Check out the repository
@@ -158,7 +162,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [3.7, 3.8, 3.9]
 
     steps:
       - name: Set up Python ${{ matrix.python-version }}
