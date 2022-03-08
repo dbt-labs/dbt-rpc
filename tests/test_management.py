@@ -361,3 +361,25 @@ def test_get_manifest(
         assert 'manifest' in result
         manifest = result['manifest']
         assert manifest['nodes']['model.test.my_model']['compiled_sql'] == 'select 1 as id'
+
+
+@pytest.mark.supported('postgres')
+def test_variable_injection(
+    project_root, profiles_root, dbt_profile, unique_schema
+):
+    project = ProjectDefinition(
+        models={
+            'my_model.sql': 'select {{ var("test_variable") }} as id',
+        },
+    )
+    querier_ctx = get_querier(
+        project_def=project,
+        project_dir=project_root,
+        profiles_dir=profiles_root,
+        schema=unique_schema,
+    )
+
+    with querier_ctx as querier:
+      results = querier.async_wait_for_result(querier.cli_args('run --vars \'test_variable: "1234"\''))
+      assert len(results['results']) == 1
+      assert results['results'][0]['node']['compiled_sql'] == 'select 1234 as id'
