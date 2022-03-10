@@ -383,3 +383,31 @@ def test_variable_injection(
       results = querier.async_wait_for_result(querier.cli_args('run --vars \'test_variable: "1234"\''))
       assert len(results['results']) == 1
       assert results['results'][0]['node']['compiled_sql'] == 'select 1234 as id'
+
+
+config_var_sql = '''
+{{ config(unique_key=var('test_variable')) }}
+select {{ config.get('unique_key') }} as id
+'''
+
+
+@pytest.mark.supported('postgres')
+def test_variable_injection_in_config(
+    project_root, profiles_root, dbt_profile, unique_schema
+):
+    project = ProjectDefinition(
+        models={
+            'my_model.sql': config_var_sql,
+        },
+    )
+    querier_ctx = get_querier(
+        project_def=project,
+        project_dir=project_root,
+        profiles_dir=profiles_root,
+        schema=unique_schema,
+    )
+
+    with querier_ctx as querier:
+      results = querier.async_wait_for_result(querier.cli_args('run --vars \'test_variable: "9876"\''))
+      assert len(results['results']) == 1
+      assert results['results'][0]['node']['compiled_sql'].trim() == 'select 9876 as id'
