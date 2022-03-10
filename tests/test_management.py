@@ -410,4 +410,4 @@ def test_variable_injection_in_config(
     with querier_ctx as querier:
       results = querier.async_wait_for_result(querier.cli_args('run --vars \'test_variable: "9876"\''))
       assert len(results['results']) == 1
-      assert results['results'][0]['node']['compiled_sql'].trim() == 'select 9876 as id'
+      assert results['results'][0]['node']['compiled_sql'].strip() == 'select 9876 as id'
