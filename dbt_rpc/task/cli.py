@@ -104,6 +104,7 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
         dumped = yaml.safe_dump(self.config.cli_vars)
         if dumped != self.args.vars:
             self.real_task.args.vars = dumped
+            self.config.args = self.args
             if isinstance(self.real_task, RemoteManifestMethod):
                 self.real_task.manifest = ManifestLoader.get_full_manifest(
                     self.config, reset=True
