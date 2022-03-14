@@ -24,7 +24,6 @@ class GarbageCollector:
         self.active_tasks: TaskHandlerMap = active_tasks
         self.settings: GCSettings = settings
 
-
     def _remove_task_if_finished(self, task_id: TaskID) -> GCResultState:
         """Remove the task if it was finished. Raises a KeyError if the entry
         is removed during operation (so hold the lock).

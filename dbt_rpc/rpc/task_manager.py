@@ -90,10 +90,10 @@ class TaskManager:
         self._task_types: TaskTypes = task_types
         self.active_tasks: TaskHandlerMap = {}
         gc_settings = GCSettings(
-                maxsize=GC_MAXSIZE,
-                reapsize=GC_REAPSIZE,
-                auto_reap_age=timedelta(hours=GC_AUTO_REAP_HOURS)
-            )
+            maxsize=GC_MAXSIZE,
+            reapsize=GC_REAPSIZE,
+            auto_reap_age=timedelta(hours=GC_AUTO_REAP_HOURS)
+        )
         self.gc = GarbageCollector(active_tasks=self.active_tasks, settings=gc_settings)
         self.last_parse: LastParse = LastParse(state=ManifestStatus.Init)
         self._lock: flags.MP_CONTEXT.Lock = flags.MP_CONTEXT.Lock()
