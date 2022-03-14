@@ -1,5 +1,5 @@
 import operator
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, List, Iterable, Tuple
 
 import dbt.exceptions
