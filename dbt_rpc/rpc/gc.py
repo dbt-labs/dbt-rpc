@@ -26,7 +26,7 @@ class GarbageCollector:
 
         if settings is None:
             self.settings = GCSettings(
-                maxsize=1000, reapsize=500, auto_reap_age=timedelta(days=30)
+                maxsize=30, reapsize=15, auto_reap_age=timedelta(days=30)
             )
         else:
             self.settings = settings
