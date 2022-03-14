@@ -19,17 +19,11 @@ class GarbageCollector:
     def __init__(
         self,
         active_tasks: TaskHandlerMap,
-        settings: Optional[GCSettings] = None,
+        settings: GCSettings,
     ) -> None:
         self.active_tasks: TaskHandlerMap = active_tasks
-        self.settings: GCSettings
+        self.settings: GCSettings = settings
 
-        if settings is None:
-            self.settings = GCSettings(
-                maxsize=30, reapsize=15, auto_reap_age=timedelta(days=30)
-            )
-        else:
-            self.settings = settings
 
     def _remove_task_if_finished(self, task_id: TaskID) -> GCResultState:
         """Remove the task if it was finished. Raises a KeyError if the entry
