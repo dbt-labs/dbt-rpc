@@ -38,9 +38,9 @@ WrappedHandler = Callable[..., Dict[str, Any]]
 
 
 SINGLE_THREADED_WEBSERVER = flags.env_set_truthy('DBT_SINGLE_THREADED_WEBSERVER')
-GC_MAXSIZE = int(flags.env_set_truthy('DBT_GC_MAXSIZE')) or 100
-GC_REAPSIZE = int(flags.env_set_truthy('DBT_GC_REAPSIZE')) or 50
-GC_AUTO_REAP_HOURS = int(flags.env_set_truthy('DBT_GC_AUTO_REAP_AGE')) or 24
+GC_MAXSIZE = int(flags.env_set_truthy('DBT_GC_MAXSIZE') or 100)
+GC_REAPSIZE = int(flags.env_set_truthy('DBT_GC_REAPSIZE') or 50)
+GC_AUTO_REAP_HOURS = int(flags.env_set_truthy('DBT_GC_AUTO_REAP_AGE') or 24)
 
 
 class UnconditionalError:
