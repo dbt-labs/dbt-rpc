@@ -30,7 +30,7 @@ setup(
     },
     install_requires=[
         'json-rpc>=1.12,<2',
-        'dbt-core~=1.0.0b1'
+        'dbt-core>=1.0.0b1'
     ],
     zip_safe=False,
     classifiers=[
