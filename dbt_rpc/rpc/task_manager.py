@@ -1,7 +1,7 @@
 from copy import deepcopy
 import threading
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import (
     Any, Dict, Optional, List, Union, Set, Callable, Type
 )
@@ -30,7 +30,6 @@ from dbt_rpc.rpc.method import (
 # pick up our builtin methods
 import dbt_rpc.rpc.builtins  # noqa
 
-
 # import this to make sure our timedelta encoder is registered
 from dbt import helper_types  # noqa
 
@@ -39,6 +38,9 @@ WrappedHandler = Callable[..., Dict[str, Any]]
 
 
 SINGLE_THREADED_WEBSERVER = flags.env_set_truthy('DBT_SINGLE_THREADED_WEBSERVER')
+GC_MAXSIZE = int(flags.env_set_truthy('DBT_RPC_INTERNAL_GC_MAXSIZE') or 1000)
+GC_REAPSIZE = int(flags.env_set_truthy('DBT_RPC_INTERNAL_GC_REAPSIZE') or 500)
+GC_AUTO_REAP_HOURS = int(flags.env_set_truthy('DBT_RPC_INTERNAL_GC_AUTO_REAP_AGE') or 24 * 30)
 
 
 class UnconditionalError:
@@ -87,7 +89,12 @@ class TaskManager:
         self.manifest: Optional[Manifest] = None
         self._task_types: TaskTypes = task_types
         self.active_tasks: TaskHandlerMap = {}
-        self.gc = GarbageCollector(active_tasks=self.active_tasks)
+        gc_settings = GCSettings(
+            maxsize=GC_MAXSIZE,
+            reapsize=GC_REAPSIZE,
+            auto_reap_age=timedelta(hours=GC_AUTO_REAP_HOURS)
+        )
+        self.gc = GarbageCollector(active_tasks=self.active_tasks, settings=gc_settings)
         self.last_parse: LastParse = LastParse(state=ManifestStatus.Init)
         self._lock: flags.MP_CONTEXT.Lock = flags.MP_CONTEXT.Lock()
         self._reloader: Optional[ManifestReloader] = None

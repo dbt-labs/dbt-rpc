@@ -1,5 +1,5 @@
 import operator
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, List, Iterable, Tuple
 
 import dbt.exceptions
@@ -19,17 +19,10 @@ class GarbageCollector:
     def __init__(
         self,
         active_tasks: TaskHandlerMap,
-        settings: Optional[GCSettings] = None,
+        settings: GCSettings,
     ) -> None:
         self.active_tasks: TaskHandlerMap = active_tasks
-        self.settings: GCSettings
-
-        if settings is None:
-            self.settings = GCSettings(
-                maxsize=1000, reapsize=500, auto_reap_age=timedelta(days=30)
-            )
-        else:
-            self.settings = settings
+        self.settings: GCSettings = settings
 
     def _remove_task_if_finished(self, task_id: TaskID) -> GCResultState:
         """Remove the task if it was finished. Raises a KeyError if the entry
