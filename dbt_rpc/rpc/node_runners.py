@@ -41,6 +41,10 @@ class GenericRPCRunner(CompileRunner, Generic[RPCSQLResult]):
         pass
 
     def compile(self, manifest):
+        if not self.node.config.enabled:
+            raise dbt.exceptions.raise_compiler_error(
+                f'Trying to compile a node that is disabled'
+            )
         compiler = self.adapter.get_compiler()
         return compiler.compile_node(self.node, manifest, {}, write=False)
 

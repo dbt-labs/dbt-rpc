@@ -70,3 +70,24 @@ def test_rpc_compile_state(
             querier.compile(state='./state', models=['state:modified']),
         )
         assert len(results['results']) == 0
+
+
+@pytest.mark.supported('postgres')
+def test_rpc_compile_sql_disabled_node(
+    project_root, profiles_root, dbt_profile, unique_schema
+):
+    project = ProjectDefinition()
+    querier_ctx = get_querier(
+        project_def=project,
+        project_dir=project_root,
+        profiles_dir=profiles_root,
+        schema=unique_schema,
+    )
+    with querier_ctx as querier:
+
+        result = querier.async_wait_for_error(
+            querier.compile_sql('{{ config(enabled=false) }}\n select 1 as id')
+        )
+
+        assert 'Trying to compile a node that is disabled' \
+            in result['data']['message']
