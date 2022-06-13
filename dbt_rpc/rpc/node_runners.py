@@ -14,17 +14,15 @@ from dbt.task.compile import CompileRunner
 from dbt_rpc.rpc.error import dbt_error, RPCException, server_error
 
 
-RPCSQLResult = TypeVar('RPCSQLResult', bound=RemoteCompileResultMixin)
+RPCSQLResult = TypeVar("RPCSQLResult", bound=RemoteCompileResultMixin)
 
 
 class GenericRPCRunner(CompileRunner, Generic[RPCSQLResult]):
     def __init__(self, config, adapter, node, node_index, num_nodes):
-        CompileRunner.__init__(
-            self, config, adapter, node, node_index, num_nodes
-        )
+        CompileRunner.__init__(self, config, adapter, node, node_index, num_nodes)
 
     def handle_exception(self, e, ctx):
-        logger.debug('Got an exception: {}'.format(e), exc_info=True)
+        logger.debug("Got an exception: {}".format(e), exc_info=True)
         if isinstance(e, dbt.exceptions.Exception):
             if isinstance(e, dbt.exceptions.RuntimeException):
                 e.add_node(ctx.node)
@@ -41,6 +39,10 @@ class GenericRPCRunner(CompileRunner, Generic[RPCSQLResult]):
         pass
 
     def compile(self, manifest):
+        if not self.node.config.enabled:
+            raise dbt.exceptions.raise_compiler_error(
+                "Trying to compile a node that is disabled"
+            )
         compiler = self.adapter.get_compiler()
         return compiler.compile_node(self.node, manifest, {}, write=False)
 
@@ -57,7 +59,7 @@ class GenericRPCRunner(CompileRunner, Generic[RPCSQLResult]):
 
     def ephemeral_result(self, node, start_time, timing_info):
         raise dbt.exceptions.NotImplementedException(
-            'cannot execute ephemeral nodes remotely!'
+            "cannot execute ephemeral nodes remotely!"
         )
 
 
@@ -72,9 +74,7 @@ class RPCCompileRunner(GenericRPCRunner[RemoteCompileResult]):
             generated_at=datetime.utcnow(),
         )
 
-    def from_run_result(
-        self, result, start_time, timing_info
-    ) -> RemoteCompileResult:
+    def from_run_result(self, result, start_time, timing_info) -> RemoteCompileResult:
         return RemoteCompileResult(
             raw_sql=result.raw_sql,
             compiled_sql=result.compiled_sql,
@@ -87,9 +87,7 @@ class RPCCompileRunner(GenericRPCRunner[RemoteCompileResult]):
 
 class RPCExecuteRunner(GenericRPCRunner[RemoteRunResult]):
     def execute(self, compiled_node, manifest) -> RemoteRunResult:
-        _, execute_result = self.adapter.execute(
-            compiled_node.compiled_sql, fetch=True
-        )
+        _, execute_result = self.adapter.execute(compiled_node.compiled_sql, fetch=True)
 
         table = ResultTable(
             column_names=list(execute_result.column_names),
@@ -106,9 +104,7 @@ class RPCExecuteRunner(GenericRPCRunner[RemoteRunResult]):
             generated_at=datetime.utcnow(),
         )
 
-    def from_run_result(
-        self, result, start_time, timing_info
-    ) -> RemoteRunResult:
+    def from_run_result(self, result, start_time, timing_info) -> RemoteRunResult:
         return RemoteRunResult(
             raw_sql=result.raw_sql,
             compiled_sql=result.compiled_sql,
