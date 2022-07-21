@@ -247,8 +247,8 @@ class RemoteCatalogResults(CatalogResults, RemoteResult):
 
 @dataclass
 class RemoteCompileResultMixin(RemoteResult):
-    raw_sql: str
-    compiled_sql: str
+    raw_code: str
+    compiled_code: str
     node: CompileResultNode
     timing: List[TimingInfo]
 
@@ -625,8 +625,8 @@ class PollCompileCompleteResult(
         logs: List[LogMessage],
     ) -> 'PollCompileCompleteResult':
         return cls(
-            raw_sql=base.raw_sql,
-            compiled_sql=base.compiled_sql,
+            raw_code=base.raw_code,
+            compiled_code=base.compiled_code,
             node=base.node,
             timing=base.timing,
             logs=logs,
@@ -659,8 +659,8 @@ class PollRunCompleteResult(
         logs: List[LogMessage],
     ) -> 'PollRunCompleteResult':
         return cls(
-            raw_sql=base.raw_sql,
-            compiled_sql=base.compiled_sql,
+            raw_code=base.raw_code,
+            compiled_code=base.compiled_code,
             node=base.node,
             timing=base.timing,
             logs=logs,

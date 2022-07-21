@@ -50,7 +50,7 @@ def test_rpc_run_vars(
     with querier_ctx as querier:
         results = querier.async_wait_for_result(querier.cli_args('run --vars "{param: 100}"'))
         assert len(results['results']) == 1
-        assert results['results'][0]['node']['compiled_sql'] == 'select 100 as id'
+        assert results['results'][0]['node']['compiled_code'] == 'select 100 as id'
 
 
 @pytest.mark.supported('postgres')
