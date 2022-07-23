@@ -66,15 +66,15 @@ class GenericRPCRunner(CompileRunner, Generic[RPCSQLResult]):
 class RPCCompileRunner(GenericRPCRunner[RemoteCompileResult]):
     def execute(self, compiled_node, manifest) -> RemoteCompileResult:
         return RemoteCompileResult(
-            raw_sql=compiled_node.raw_sql,
-            compiled_sql=compiled_node.compiled_sql,
+            raw_sql=compiled_node.raw_code,
+            compiled_sql=compiled_node.compiled_code,
             node=compiled_node,
             timing=[],  # this will get added later
             logs=[],
             generated_at=datetime.utcnow(),
         )
 
-    def from_run_result(self, result, start_time, timing_info) -> RemoteCompileResult:
+    def from_run_result(self, result: RemoteRunResult, start_time, timing_info) -> RemoteCompileResult:
         return RemoteCompileResult(
             raw_sql=result.raw_sql,
             compiled_sql=result.compiled_sql,
@@ -87,7 +87,7 @@ class RPCCompileRunner(GenericRPCRunner[RemoteCompileResult]):
 
 class RPCExecuteRunner(GenericRPCRunner[RemoteRunResult]):
     def execute(self, compiled_node, manifest) -> RemoteRunResult:
-        _, execute_result = self.adapter.execute(compiled_node.compiled_sql, fetch=True)
+        _, execute_result = self.adapter.execute(compiled_node.compiled_code, fetch=True)
 
         table = ResultTable(
             column_names=list(execute_result.column_names),
@@ -95,8 +95,8 @@ class RPCExecuteRunner(GenericRPCRunner[RemoteRunResult]):
         )
 
         return RemoteRunResult(
-            raw_sql=compiled_node.raw_sql,
-            compiled_sql=compiled_node.compiled_sql,
+            raw_sql=compiled_node.raw_code,
+            compiled_sql=compiled_node.compiled_code,
             node=compiled_node,
             table=table,
             timing=[],
@@ -104,7 +104,7 @@ class RPCExecuteRunner(GenericRPCRunner[RemoteRunResult]):
             generated_at=datetime.utcnow(),
         )
 
-    def from_run_result(self, result, start_time, timing_info) -> RemoteRunResult:
+    def from_run_result(self, result: RemoteRunResult, start_time, timing_info) -> RemoteRunResult:
         return RemoteRunResult(
             raw_sql=result.raw_sql,
             compiled_sql=result.compiled_sql,
