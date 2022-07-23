@@ -53,7 +53,7 @@ class RPCMacroParser(MacroParser):
             path='from remote system',
             original_file_path='from remote system',
             package_name=self.project.project_name,
-            raw_code=contents,
+            raw_sql=contents,
             root_path=self.project.project_root,
             resource_type=NodeType.Macro,
         )

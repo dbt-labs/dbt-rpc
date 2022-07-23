@@ -353,14 +353,14 @@ def test_get_manifest(
     with querier_ctx as querier:
         results = querier.async_wait_for_result(querier.cli_args('run'))
         assert len(results['results']) == 1
-        assert results['results'][0]['node']['compiled_code'] == 'select 1 as id'
+        assert results['results'][0]['node']['compiled_sql'] == 'select 1 as id'
         result = querier.async_wait_for_result(querier.get_manifest())
         assert 'manifest' in result
         manifest = result['manifest']
-        assert manifest['nodes']['model.test.my_model']['raw_code'] == 'select 1 as id'
+        assert manifest['nodes']['model.test.my_model']['raw_sql'] == 'select 1 as id'
         assert 'manifest' in result
         manifest = result['manifest']
-        assert manifest['nodes']['model.test.my_model']['compiled_code'] == 'select 1 as id'
+        assert manifest['nodes']['model.test.my_model']['compiled_sql'] == 'select 1 as id'
 
 
 @pytest.mark.supported('postgres')
@@ -382,7 +382,7 @@ def test_variable_injection(
     with querier_ctx as querier:
       results = querier.async_wait_for_result(querier.cli_args('run --vars \'test_variable: "1234"\''))
       assert len(results['results']) == 1
-      assert results['results'][0]['node']['compiled_code'] == 'select 1234 as id'
+      assert results['results'][0]['node']['compiled_sql'] == 'select 1234 as id'
 
 
 config_var_sql = '''
@@ -410,4 +410,4 @@ def test_variable_injection_in_config(
     with querier_ctx as querier:
       results = querier.async_wait_for_result(querier.cli_args('run --vars \'test_variable: "9876"\''))
       assert len(results['results']) == 1
-      assert results['results'][0]['node']['compiled_code'].strip() == 'select 9876 as id'
+      assert results['results'][0]['node']['compiled_sql'].strip() == 'select 9876 as id'

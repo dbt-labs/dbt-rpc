@@ -13,7 +13,7 @@ def _compile_poll_for_result(querier, id: int):
         request_id=id, sql=sql, name=f'query_{id}'
     )
     compile_sql_result = querier.async_wait_for_result(resp)
-    assert compile_sql_result['results'][0]['compiled_code'] == sql
+    assert compile_sql_result['results'][0]['compiled_sql'] == sql
 
 
 @pytest.mark.supported('postgres')

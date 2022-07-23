@@ -214,6 +214,13 @@ class GetManifestParameters(RPCParameters):
 @dataclass
 class RemoteResult(VersionedSchema):
     logs: List[LogMessage]
+    def __post_serialize__(self, dct):
+        if 'node' in dct:
+            if 'raw_code' in dct['node']:
+                dct['node']['raw_sql'] = dct['node'].pop('raw_code')
+            if 'compiled_code' in dct['node']:
+                dct['node']['compiled_sql'] = dct['node'].pop('compiled_code')
+        return dct
 
 
 @dataclass
@@ -247,8 +254,8 @@ class RemoteCatalogResults(CatalogResults, RemoteResult):
 
 @dataclass
 class RemoteCompileResultMixin(RemoteResult):
-    raw_code: str
-    compiled_code: str
+    raw_sql: str
+    compiled_sql: str
     node: CompileResultNode
     timing: List[TimingInfo]
 
@@ -270,6 +277,16 @@ class RemoteExecutionResult(ExecutionResult, RemoteResult):
     args: Dict[str, Any] = field(default_factory=dict)
     generated_at: datetime = field(default_factory=datetime.utcnow)
 
+    def __post_serialize__(self, dct):
+        for node_dct in dct['results']:
+            if 'node' in node_dct:
+                if 'raw_code' in node_dct['node']:
+                    node_dct['node']['raw_sql'] = node_dct['node'].pop('raw_code')
+                if 'compiled_code' in node_dct['node']:
+                    node_dct['node']['compiled_sql'] = node_dct['node'].pop('compiled_code')
+        return dct
+
+    
     def write(self, path: str):
         writable = RunResultsArtifact.from_execution_results(
             generated_at=self.generated_at,
@@ -625,8 +642,8 @@ class PollCompileCompleteResult(
         logs: List[LogMessage],
     ) -> 'PollCompileCompleteResult':
         return cls(
-            raw_code=base.raw_code,
-            compiled_code=base.compiled_code,
+            raw_sql=base.raw_sql,
+            compiled_sql=base.compiled_sql,
             node=base.node,
             timing=base.timing,
             logs=logs,
@@ -659,8 +676,8 @@ class PollRunCompleteResult(
         logs: List[LogMessage],
     ) -> 'PollRunCompleteResult':
         return cls(
-            raw_code=base.raw_code,
-            compiled_code=base.compiled_code,
+            raw_sql=base.raw_sql,
+            compiled_sql=base.compiled_sql,
             node=base.node,
             timing=base.timing,
             logs=logs,
