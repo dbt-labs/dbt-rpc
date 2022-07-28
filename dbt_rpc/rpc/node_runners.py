@@ -2,6 +2,8 @@ from abc import abstractmethod
 from datetime import datetime
 from typing import Generic, TypeVar
 
+from attr import has
+
 import dbt.exceptions
 from dbt_rpc.contracts.rpc import (
     RemoteCompileResult,
@@ -87,7 +89,8 @@ class RPCCompileRunner(GenericRPCRunner[RemoteCompileResult]):
 
 class RPCExecuteRunner(GenericRPCRunner[RemoteRunResult]):
     def execute(self, compiled_node, manifest) -> RemoteRunResult:
-        _, execute_result = self.adapter.execute(compiled_node.compiled_code, fetch=True)
+        compiled_code = getattr(compiled_node, 'compiled_code', compiled_node.compiled_sql)
+        _, execute_result = self.adapter.execute(compiled_code, fetch=True)
 
         table = ResultTable(
             column_names=list(execute_result.column_names),
