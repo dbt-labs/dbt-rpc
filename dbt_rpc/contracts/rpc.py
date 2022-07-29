@@ -214,6 +214,7 @@ class GetManifestParameters(RPCParameters):
 @dataclass
 class RemoteResult(VersionedSchema):
     logs: List[LogMessage]
+
     def __post_serialize__(self, dct):
         if 'node' in dct:
             if 'raw_code' in dct['node']:
@@ -286,7 +287,6 @@ class RemoteExecutionResult(ExecutionResult, RemoteResult):
                     node_dct['node']['compiled_sql'] = node_dct['node'].pop('compiled_code')
         return dct
 
-    
     def write(self, path: str):
         writable = RunResultsArtifact.from_execution_results(
             generated_at=self.generated_at,
