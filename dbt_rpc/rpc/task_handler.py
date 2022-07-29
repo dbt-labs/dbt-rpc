@@ -42,7 +42,7 @@ from dbt_rpc.rpc.method import RemoteMethod
 from dbt_rpc.task.project_commands import RemoteListTask
 
 # we use this in typing only...
-from queue import Queue  # noqa
+from multiprocessing import Queue  # noqa
 
 
 def sigterm_handler(signum, frame):

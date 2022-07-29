@@ -564,7 +564,6 @@ def parse_args(args, cls=DBTArgumentParser):
         sys.exit(1)
 
     parsed = p.parse_args(args)
-
     # profiles_dir is set before subcommands and after, so normalize
     if hasattr(parsed, 'sub_profiles_dir'):
         if parsed.sub_profiles_dir is not None:
