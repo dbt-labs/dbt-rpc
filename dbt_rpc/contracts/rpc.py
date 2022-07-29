@@ -215,6 +215,14 @@ class GetManifestParameters(RPCParameters):
 class RemoteResult(VersionedSchema):
     logs: List[LogMessage]
 
+    def __post_serialize__(self, dct):
+        if 'node' in dct:
+            if 'raw_code' in dct['node']:
+                dct['node']['raw_sql'] = dct['node'].pop('raw_code')
+            if 'compiled_code' in dct['node']:
+                dct['node']['compiled_sql'] = dct['node'].pop('compiled_code')
+        return dct
+
 
 @dataclass
 @schema_version('remote-list-results', 1)
@@ -269,6 +277,15 @@ class RemoteExecutionResult(ExecutionResult, RemoteResult):
     results: Sequence[RunResult]
     args: Dict[str, Any] = field(default_factory=dict)
     generated_at: datetime = field(default_factory=datetime.utcnow)
+
+    def __post_serialize__(self, dct):
+        for node_dct in dct['results']:
+            if 'node' in node_dct:
+                if 'raw_code' in node_dct['node']:
+                    node_dct['node']['raw_sql'] = node_dct['node'].pop('raw_code')
+                if 'compiled_code' in node_dct['node']:
+                    node_dct['node']['compiled_sql'] = node_dct['node'].pop('compiled_code')
+        return dct
 
     def write(self, path: str):
         writable = RunResultsArtifact.from_execution_results(
