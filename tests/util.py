@@ -421,6 +421,7 @@ class Querier:
         self,
         sql: str,
         name: str = 'test_compile',
+        language: str = 'sql',
         macros: Optional[str] = None,
         request_id: int = 1,
     ):
@@ -429,6 +430,7 @@ class Querier:
             'name': name,
             'sql': sql,
             'macros': macros,
+            'language': language,
         }
         return self.request(
             method='compile_sql', params=params, request_id=request_id
@@ -438,6 +440,7 @@ class Querier:
         self,
         sql: str,
         name: str = 'test_run',
+        language: str = 'sql',
         macros: Optional[str] = None,
         request_id: int = 1,
     ):
@@ -446,6 +449,7 @@ class Querier:
             'name': name,
             'sql': sql,
             'macros': macros,
+            'language': language,
         }
         return self.request(
             method='run_sql', params=params, request_id=request_id
