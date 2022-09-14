@@ -52,6 +52,7 @@ class RPCExecParameters(RPCParameters):
     name: str
     sql: str
     macros: Optional[str] = None
+    language: Optional[str] = 'sql'
 
 
 @dataclass
