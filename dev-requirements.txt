@@ -1,5 +1,5 @@
-git+https://github.com/dbt-labs/dbt-core.git#egg=dbt-core&subdirectory=core
-git+https://github.com/dbt-labs/dbt-core.git#egg=dbt-postgres&subdirectory=plugins/postgres
+git+https://github.com/dbt-labs/dbt-core.git@rpc_support_python_compile#egg=dbt-core&subdirectory=core
+git+https://github.com/dbt-labs/dbt-core.git@rpc_support_python_compile#egg=dbt-postgres&subdirectory=plugins/postgres
 
 flake8
 pytest
