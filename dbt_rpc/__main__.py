@@ -271,6 +271,9 @@ def _build_base_subparser():
         default=None,
         dest='sub_profiles_dir',  # Main cli arg precedes subcommand
         type=str,
+        help='''
+        Which directory to look in for the profiles.yml file. If not set, dbt will look in the current working directory first, then HOME/.dbt/
+        '''
     )
 
     base_subparser.add_argument(
@@ -479,6 +482,9 @@ def parse_args(args, cls=DBTArgumentParser):
         default=None,
         dest='profiles_dir',
         type=str,
+        help='''
+        Which directory to look in for the profiles.yml file. If not set, dbt will look in the current working directory first, then HOME/.dbt/
+        '''
     )
 
     p.add_argument(
