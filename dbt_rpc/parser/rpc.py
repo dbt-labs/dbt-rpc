@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass
-from typing import Iterable
+from typing import Iterable, Optional
 
 from dbt.contracts.graph.manifest import SourceFile
 from dbt.contracts.graph.parsed import ParsedRPCNode, ParsedMacro
@@ -41,8 +41,8 @@ class RPCCallParser(SimpleSQLParser[ParsedRPCNode]):
 
         return os.path.join('rpc', block.name)
 
-    def parse_remote(self, sql: str, name: str) -> ParsedRPCNode:
-        source_file = SourceFile.remote(sql, self.project.project_name)
+    def parse_remote(self, sql: str, name: str, language: Optional[str] = 'sql') -> ParsedRPCNode:
+        source_file = SourceFile.remote(sql, self.project.project_name, language)
         contents = RPCBlock(rpc_name=name, file=source_file)
         return self.parse_node(contents)
 

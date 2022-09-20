@@ -121,7 +121,8 @@ class RemoteRunSQLTask(RPCTask[RPCExecParameters]):
             manifest=self.manifest,
             root_project=self.config,
         )
-        rpc_node = rpc_parser.parse_remote(sql, self.args.name)
+
+        rpc_node = rpc_parser.parse_remote(sql, self.args.name, self.args.language)
         add_new_refs(
             manifest=self.manifest,
             config=self.config,
@@ -155,6 +156,7 @@ class RemoteRunSQLTask(RPCTask[RPCExecParameters]):
         self.args.name = params.name
         self.args.sql = params.sql
         self.args.macros = params.macros
+        self.args.language = params.language
 
     def handle_request(self) -> RemoteExecutionResult:
         # we could get a ctrl+c at any time, including during parsing.
