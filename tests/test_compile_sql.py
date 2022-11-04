@@ -39,6 +39,5 @@ def test_rpc_compile_macro(
     )
     with querier_ctx as querier:
         result = querier.async_wait_for_result(querier.compile_sql('{% macro test()%}\n 1\n{%endmacro%}\n {{ test() }}', ))
-        breakpoint()
         assert '\n \n 1\n' == result['results'][0]['compiled_sql']
 
