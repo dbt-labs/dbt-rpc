@@ -55,7 +55,6 @@ class RPCMacroParser(MacroParser):
             package_name=self.project.project_name,
             raw_code=contents,
             language='sql',
-            root_path=self.project.project_root,
             resource_type=NodeType.Macro,
         )
         for node in self.parse_unparsed_macros(base):
