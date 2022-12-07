@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Iterable, Optional
 
 from dbt.contracts.graph.manifest import SourceFile
-from dbt.contracts.graph.parsed import ParsedRPCNode, ParsedMacro
+from dbt.contracts.graph.nodes import RPCNode, Macro
 from dbt.contracts.graph.unparsed import UnparsedMacro
 from dbt.exceptions import InternalException
 from dbt.node_types import NodeType
@@ -21,11 +21,11 @@ class RPCBlock(FileBlock):
         return self.rpc_name
 
 
-class RPCCallParser(SimpleSQLParser[ParsedRPCNode]):
-    def parse_from_dict(self, dct, validate=True) -> ParsedRPCNode:
+class RPCCallParser(SimpleSQLParser[RPCNode]):
+    def parse_from_dict(self, dct, validate=True) -> RPCNode:
         if validate:
-            ParsedRPCNode.validate(dct)
-        return ParsedRPCNode.from_dict(dct)
+            RPCNode.validate(dct)
+        return RPCNode.from_dict(dct)
 
     @property
     def resource_type(self) -> NodeType:
@@ -41,14 +41,14 @@ class RPCCallParser(SimpleSQLParser[ParsedRPCNode]):
 
         return os.path.join('rpc', block.name)
 
-    def parse_remote(self, sql: str, name: str, language: Optional[str] = 'sql') -> ParsedRPCNode:
+    def parse_remote(self, sql: str, name: str, language: Optional[str] = 'sql') -> RPCNode:
         source_file = SourceFile.remote(sql, self.project.project_name, language)
         contents = RPCBlock(rpc_name=name, file=source_file)
         return self.parse_node(contents)
 
 
 class RPCMacroParser(MacroParser):
-    def parse_remote(self, contents) -> Iterable[ParsedMacro]:
+    def parse_remote(self, contents) -> Iterable[Macro]:
         base = UnparsedMacro(
             path='from remote system',
             original_file_path='from remote system',

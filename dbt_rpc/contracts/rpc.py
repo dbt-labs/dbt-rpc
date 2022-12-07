@@ -7,7 +7,7 @@ from typing import Optional, Union, List, Any, Dict, Type, Sequence
 
 from dbt.dataclass_schema import dbtClassMixin, StrEnum
 
-from dbt.contracts.graph.compiled import CompileResultNode
+from dbt.contracts.graph.nodes import ResultNode
 from dbt.contracts.graph.manifest import WritableManifest
 from dbt.contracts.results import (
     RunResult, RunResultsArtifact, TimingInfo,
@@ -258,7 +258,7 @@ class RemoteCatalogResults(CatalogResults, RemoteResult):
 class RemoteCompileResultMixin(RemoteResult):
     raw_sql: str
     compiled_sql: str
-    node: CompileResultNode
+    node: ResultNode
     timing: List[TimingInfo]
 
 
