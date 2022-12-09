@@ -1,6 +1,6 @@
 ## dbt-rpc
 
-> :warning: **The `dbt-rpc` plugin will be fully deprecated by the end of 2022.**
+> :warning: **The `dbt-rpc` plugin will be fully deprecated by the second half of of 2023.**
 > 
 > For now, dbt Labs is actively maintaining and using `dbt-rpc` to enable interactive dbt development. Soon, we plan to announce a next-generation dbt Server. After the new Server reaches general release, this plugin will be locked, except for critical maintenance, for a period of six months. After that time, we plan to archive this repository. It will remain available for read-only use.
 
