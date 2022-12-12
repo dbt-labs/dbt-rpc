@@ -5,5 +5,5 @@ flake8
 pytest
 pytest-xdist
 pytest-dotenv
-tox>=3.13
+tox==3.27.1
 pyyaml
