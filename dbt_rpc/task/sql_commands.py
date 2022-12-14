@@ -9,7 +9,7 @@ from dbt.adapters.factory import get_adapter
 from dbt.clients.jinja import extract_toplevel_blocks
 from dbt.config.runtime import RuntimeConfig
 from dbt.contracts.graph.manifest import Manifest
-from dbt.contracts.graph.parsed import ParsedRPCNode
+from dbt.contracts.graph.nodes import RPCNode
 from dbt_rpc.contracts.rpc import RPCExecParameters
 from dbt_rpc.contracts.rpc import RemoteExecutionResult
 from dbt.exceptions import RPCKilledException, InternalException
@@ -30,7 +30,7 @@ SINGLE_THREADED_HANDLER = env_set_truthy('DBT_SINGLE_THREADED_HANDLER')
 def add_new_refs(
     manifest: Manifest,
     config: RuntimeConfig,
-    node: ParsedRPCNode,
+    node: RPCNode,
     macros: Dict[str, Any]
 ) -> None:
     """Given a new node that is not in the manifest, insert the new node
