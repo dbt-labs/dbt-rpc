@@ -8,7 +8,7 @@ def read(fname):
 
 
 package_name = "dbt-rpc"
-package_version = "0.2.1"
+package_version = "0.3.0"
 description = """ A JSON RPC server that provides an interface to programmically interact with dbt projects. """
 
 
