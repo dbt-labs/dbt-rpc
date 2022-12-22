@@ -74,8 +74,8 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
         user_config = None
         if self.task.config is not None:
             user_config = self.task.config.user_config
-        dbt.flags.set_from_args(self.task.args, user_config)
-        dbt.tracking.initialize_from_flags()
+        # dbt.flags.set_from_args(self.task.args, user_config)
+        # dbt.tracking.initialize_from_flags()
         # reload the active plugin
         load_plugin(self.task.config.credentials.type)
         # register it

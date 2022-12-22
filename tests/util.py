@@ -648,6 +648,7 @@ class TestArgs:
         self.project_dir = None
         self.profile = None
         self.target = None
+        self.threads = None
         self.__dict__.update(kwargs)
 
 

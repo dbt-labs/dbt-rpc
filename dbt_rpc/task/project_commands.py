@@ -112,6 +112,7 @@ class RemoteRunProjectTask(RPCCommandTask[RPCRunParameters], RunTask):
             self.args.defer = params.defer
 
         self.args.state = state_path(params.state)
+        self.args.selector = None
         self.set_previous_state()
 
 

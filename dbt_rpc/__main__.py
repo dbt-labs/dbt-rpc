@@ -201,25 +201,26 @@ def handle_and_check(args):
 
 @contextmanager
 def track_run(task):
-    dbt.tracking.track_invocation_start(config=task.config, args=task.args)
-    try:
-        yield
-        dbt.tracking.track_invocation_end(
-            config=task.config, args=task.args, result_type="ok"
-        )
-    except (NotImplementedException,
-            FailedToConnectException) as e:
-        logger.error('ERROR: {}'.format(e))
-        dbt.tracking.track_invocation_end(
-            config=task.config, args=task.args, result_type="error"
-        )
-    except Exception:
-        dbt.tracking.track_invocation_end(
-            config=task.config, args=task.args, result_type="error"
-        )
-        raise
-    finally:
-        dbt.tracking.flush()
+    yield
+    # dbt.tracking.track_invocation_start(config=task.config, args=task.args)
+    # try:
+    #     yield
+    #     dbt.tracking.track_invocation_end(
+    #         config=task.config, args=task.args, result_type="ok"
+    #     )
+    # except (NotImplementedException,
+    #         FailedToConnectException) as e:
+    #     logger.error('ERROR: {}'.format(e))
+    #     dbt.tracking.track_invocation_end(
+    #         config=task.config, args=task.args, result_type="error"
+    #     )
+    # except Exception:
+    #     dbt.tracking.track_invocation_end(
+    #         config=task.config, args=task.args, result_type="error"
+    #     )
+    #     raise
+    # finally:
+    #     dbt.tracking.flush()
 
 
 def run_from_args(parsed):
@@ -233,6 +234,7 @@ def run_from_args(parsed):
 
     # this will convert DbtConfigErrors into RuntimeExceptions
     # task could be any one of the task objects
+    parsed.vars = {}
     task = parsed.cls.from_args(args=parsed)
 
     logger.debug("running dbt with arguments {parsed}", parsed=str(parsed))
@@ -246,8 +248,8 @@ def run_from_args(parsed):
         logger.debug("Tracking: {}".format(dbt.tracking.active_user.state()))
 
     results = None
-
     with track_run(task):
+        
         results = task.run()
 
     return task, results
@@ -492,7 +494,7 @@ def parse_args(args, cls=DBTArgumentParser):
     p.add_argument(
         '--no-anonymous-usage-stats',
         action='store_false',
-        default=None,
+        default=False,
         dest='send_anonymous_usage_stats',
         help='''
         Do not send anonymous usage stat to dbt Labs
@@ -603,3 +605,6 @@ def parse_args(args, cls=DBTArgumentParser):
         p.exit(1)
 
     return parsed
+
+if __name__ == '__main__':
+    main()
