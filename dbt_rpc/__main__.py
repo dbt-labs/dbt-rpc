@@ -201,26 +201,27 @@ def handle_and_check(args):
 
 @contextmanager
 def track_run(task):
-    yield
-    # dbt.tracking.track_invocation_start(config=task.config, args=task.args)
-    # try:
-    #     yield
-    #     dbt.tracking.track_invocation_end(
-    #         config=task.config, args=task.args, result_type="ok"
-    #     )
-    # except (NotImplementedException,
-    #         FailedToConnectException) as e:
-    #     logger.error('ERROR: {}'.format(e))
-    #     dbt.tracking.track_invocation_end(
-    #         config=task.config, args=task.args, result_type="error"
-    #     )
-    # except Exception:
-    #     dbt.tracking.track_invocation_end(
-    #         config=task.config, args=task.args, result_type="error"
-    #     )
-    #     raise
-    # finally:
-    #     dbt.tracking.flush()
+    invocation_context = dbt.tracking.get_base_invocation_context()
+    invocation_context["command"] = 'rpc'
+    dbt.tracking.track_invocation_start(invocation_context)
+    try:
+        yield
+        dbt.tracking.track_invocation_end(
+            invocation_context, result_type="ok"
+        )
+    except (NotImplementedException,
+            FailedToConnectException) as e:
+        logger.error('ERROR: {}'.format(e))
+        dbt.tracking.track_invocation_end(
+            invocation_context, result_type="error"
+        )
+    except Exception:
+        dbt.tracking.track_invocation_end(
+            invocation_context, result_type="error"
+        )
+        raise
+    finally:
+        dbt.tracking.flush()
 
 
 def run_from_args(parsed):
