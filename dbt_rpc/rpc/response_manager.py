@@ -88,8 +88,8 @@ class ResponseManager(JSONRPCResponseManager):
             return cls.handle_request(request, dispatcher)
 
     @classmethod
-    def _get_responses(cls, requests, dispatcher):
-        for output in super()._get_responses(requests, dispatcher):
+    def _get_responses(cls, requests, dispatcher, context=None):
+        for output in super()._get_responses(requests, dispatcher, context):
             # if it's a result, check if it's a dbtClassMixin and if so call
             # to_dict
             if hasattr(output, 'result'):
