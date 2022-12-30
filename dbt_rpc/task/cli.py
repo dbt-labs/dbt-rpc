@@ -101,9 +101,15 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
         )
         # If this changed the vars, rewrite args.vars to reflect our merged
         # vars and reload the manifest.
+
+        #TODO Here's why this logic nolonger works:
+        # we updated to have cli vars and also vars all being the parsed version, which makes them object
+        # https://github.com/dbt-labs/dbt-core/pull/6396/files#diff-7685e44a07e8211f0e710116a07186168af0feb2e466fb46e40504d6b2282ec1L237
         dumped = yaml.safe_dump(self.config.cli_vars)
         if dumped != self.args.vars:
-            self.real_task.args.vars = dumped
+            self.real_task.args.cli_vars = self.config.cli_vars
+            self.args.cli_vars = self.config.cli_vars
+            self.args.vars = self.config.cli_vars
             self.config.args = self.args
             if isinstance(self.real_task, RemoteManifestMethod):
                 self.real_task.manifest = ManifestLoader.get_full_manifest(

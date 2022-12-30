@@ -96,6 +96,7 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
             # some commands, like 'debug', won't have a threads value at all.
             if getattr(self.task.args, 'threads', None) is not None:
                 self.task.config.threads = self.task.args.threads
+            self.task.args.selector = None
             rpc_exception = None
             result = None
             try:

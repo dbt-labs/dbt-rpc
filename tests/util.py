@@ -649,6 +649,7 @@ class TestArgs:
         self.profile = None
         self.target = None
         self.threads = None
+        self.selector = None
         self.__dict__.update(kwargs)
 
 

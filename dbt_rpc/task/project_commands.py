@@ -89,7 +89,6 @@ class RemoteCompileProjectTask(
             self.args.threads = params.threads
 
         self.args.state = state_path(params.state)
-
         self.set_previous_state()
 
 
