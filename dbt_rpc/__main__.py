@@ -20,6 +20,7 @@ from dbt.exceptions import (
     NotImplementedException,
     FailedToConnectException
 )
+from dbt.config.utils import parse_cli_vars
 import dbt.flags as flags
 
 from dbt_rpc.task.server import RPCServerTask
@@ -235,7 +236,7 @@ def run_from_args(parsed):
 
     # this will convert DbtConfigErrors into RuntimeExceptions
     # task could be any one of the task objects
-    parsed.vars = {}
+    parsed.vars = parse_cli_vars(parsed.vars)
     task = parsed.cls.from_args(args=parsed)
 
     logger.debug("running dbt with arguments {parsed}", parsed=str(parsed))
