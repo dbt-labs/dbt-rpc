@@ -29,7 +29,7 @@ setup(
         ],
     },
     install_requires=[
-        'json-rpc~=1.13.0',
+        'json-rpc>=1.12,<2',
         'dbt-core>=1.3.0rc1'
     ],
     zip_safe=False,
