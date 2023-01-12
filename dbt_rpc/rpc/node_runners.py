@@ -34,7 +34,7 @@ class GenericRPCRunner(CompileRunner, Generic[RPCSQLResult]):
     def handle_exception(self, e, ctx):
         logger.debug("Got an exception: {}".format(e), exc_info=True)
         if isinstance(e, dbt.exceptions.Exception):
-            if isinstance(e, dbt.exceptions.RuntimeException):
+            if isinstance(e, dbt.exceptions.DbtRuntimeError):
                 e.add_node(ctx.node)
             return dbt_error(e)
         elif isinstance(e, RPCException):
