@@ -12,7 +12,7 @@ from dbt.contracts.graph.manifest import Manifest
 from dbt.contracts.graph.nodes import RPCNode
 from dbt_rpc.contracts.rpc import RPCExecParameters
 from dbt_rpc.contracts.rpc import RemoteExecutionResult
-from dbt.exceptions import RPCKilledException, InternalException
+from dbt.exceptions import RPCKilledException, DbtInternalError
 from dbt.logger import GLOBAL_LOGGER as logger
 from dbt.parser.manifest import process_node, process_macro
 from dbt_rpc.parser.rpc import RPCCallParser, RPCMacroParser
@@ -102,7 +102,7 @@ class RemoteRunSQLTask(RPCTask[RPCExecParameters]):
 
     def _get_exec_node(self):
         if self.manifest is None:
-            raise InternalException(
+            raise DbtInternalError(
                 'manifest not set in _get_exec_node'
             )
 

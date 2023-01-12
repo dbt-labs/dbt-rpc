@@ -5,7 +5,7 @@ from typing import List, Optional, Type, TypeVar, Generic, Dict, Any
 from dbt.dataclass_schema import dbtClassMixin, ValidationError
 
 from dbt_rpc.contracts.rpc import RPCParameters, RemoteResult, RemoteMethodFlags
-from dbt.exceptions import NotImplementedException, InternalException
+from dbt.exceptions import NotImplementedError, DbtInternalError
 
 Parameters = TypeVar('Parameters', bound=RPCParameters)
 Result = TypeVar('Result', bound=RemoteResult)
@@ -27,19 +27,19 @@ class RemoteMethod(Generic[Parameters, Result]):
         argspec = inspect.getfullargspec(cls.set_args)
         annotations = argspec.annotations
         if 'params' not in annotations:
-            raise InternalException(
+            raise DbtInternalError(
                 'set_args must have parameter named params with a valid '
                 'RPCParameters type definition (no params annotation found)'
             )
         params_type = annotations['params']
         if not issubclass(params_type, RPCParameters):
-            raise InternalException(
+            raise DbtInternalError(
                 'set_args must have parameter named params with a valid '
                 'RPCParameters type definition (got {}, expected '
                 'RPCParameters subclass)'.format(params_type)
             )
         if params_type is RPCParameters:
-            raise InternalException(
+            raise DbtInternalError(
                 'set_args must have parameter named params with a valid '
                 'RPCParameters type definition (got RPCParameters itself!)'
             )
@@ -67,12 +67,12 @@ class RemoteMethod(Generic[Parameters, Result]):
     @abstractmethod
     def set_args(self, params: Parameters):
         """set_args executes in the parent process for an RPC call"""
-        raise NotImplementedException('set_args not implemented')
+        raise NotImplementedError('set_args not implemented')
 
     @abstractmethod
     def handle_request(self) -> Result:
         """handle_request executes inside the child process for an RPC call"""
-        raise NotImplementedException('handle_request not implemented')
+        raise NotImplementedError('handle_request not implemented')
 
     def cleanup(self, result: Optional[Result]):
         """cleanup is an optional method that executes inside the parent
@@ -103,7 +103,7 @@ class RemoteBuiltinMethod(RemoteMethod[Parameters, Result]):
         self.params = params
 
     def run(self):
-        raise InternalException(
+        raise DbtInternalError(
             'the run() method on builtins should never be called'
         )
 

@@ -14,7 +14,7 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.serving import run_simple
 from werkzeug.exceptions import NotFound
 
-from dbt.exceptions import RuntimeException
+from dbt.exceptions import DbtRuntimeError
 from dbt.logger import (
     GLOBAL_LOGGER as logger,
     log_manager,
@@ -77,7 +77,7 @@ class RPCServerTask(ConfiguredTask):
         self, args, config, tasks: Optional[List[Type[RemoteMethod]]] = None
     ) -> None:
         if os.name == 'nt':
-            raise RuntimeException(
+            raise DbtRuntimeError(
                 'The dbt RPC server is not supported on windows'
             )
         super().__init__(args, config)

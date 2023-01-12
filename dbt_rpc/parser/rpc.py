@@ -5,7 +5,7 @@ from typing import Iterable, Optional
 from dbt.contracts.graph.manifest import SourceFile
 from dbt.contracts.graph.nodes import RPCNode, Macro
 from dbt.contracts.graph.unparsed import UnparsedMacro
-from dbt.exceptions import InternalException
+from dbt.exceptions import DbtInternalError
 from dbt.node_types import NodeType
 from dbt.parser.base import SimpleSQLParser
 from dbt.parser.macros import MacroParser
@@ -34,7 +34,7 @@ class RPCCallParser(SimpleSQLParser[RPCNode]):
     def get_compiled_path(cls, block: FileBlock):
         # we do it this way to make mypy happy
         if not isinstance(block, RPCBlock):
-            raise InternalException(
+            raise DbtInternalError(
                 'While parsing RPC calls, got an actual file block instead of '
                 'an RPC block: {}'.format(block)
             )

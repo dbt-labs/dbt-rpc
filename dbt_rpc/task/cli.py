@@ -13,7 +13,7 @@ from dbt_rpc.rpc.method import (
     Parameters,
     Result,
 )
-from dbt.exceptions import InternalException
+from dbt.exceptions import DbtInternalError
 from dbt.parser.manifest import ManifestLoader
 
 from .base import RPCTask
@@ -41,7 +41,7 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
         super().set_config(config)
 
         if self.task_type is None:
-            raise InternalException('task type not set for set_config')
+            raise DbtInternalError('task type not set for set_config')
         if issubclass(self.task_type, RemoteManifestMethod):
             task_type: Type[RemoteManifestMethod] = self.task_type
             self.real_task = task_type(
@@ -62,7 +62,7 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
 
     def get_flags(self):
         if self.task_type is None:
-            raise InternalException('task type not set for get_flags')
+            raise DbtInternalError('task type not set for get_flags')
         # this is a kind of egregious hack from a type perspective...
         return self.task_type.get_flags(self)  # type: ignore
 
@@ -75,7 +75,7 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
             if candidate.METHOD_NAME == self.args.rpc_method:
                 return candidate
         # this shouldn't happen
-        raise InternalException(
+        raise DbtInternalError(
             'No matching handler found for rpc method {} (which={})'
             .format(self.args.rpc_method, self.args.which)
         )
@@ -86,7 +86,7 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
 
     def handle_request(self) -> Result:
         if self.real_task is None:
-            raise InternalException(
+            raise DbtInternalError(
                 'CLI task is in a bad state: handle_request called with no '
                 'real_task set!'
             )
