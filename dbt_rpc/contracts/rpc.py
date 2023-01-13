@@ -21,7 +21,7 @@ from dbt.contracts.results import (
     RunExecutionResult,
 )
 from dbt.contracts.util import VersionedSchema, schema_version
-from dbt.exceptions import InternalException
+from dbt.exceptions import DbtInternalError
 from dbt.logger import LogMessage
 from dbt.utils import restrict_to
 
@@ -409,7 +409,7 @@ class GCResult(RemoteResult):
         elif state == GCResultState.Deleted:
             self.deleted.append(task_id)
         else:
-            raise InternalException(
+            raise DbtInternalError(
                 f'Got invalid state in add_result: {state}'
             )
 

@@ -15,10 +15,10 @@ import dbt.tracking
 from dbt.utils import ExitCodes
 from dbt.config.profile import read_user_config
 from dbt.exceptions import (
-    RuntimeException,
-    InternalException,
-    NotImplementedException,
-    FailedToConnectException
+    DbtRuntimeError,
+    DbtInternalError,
+    NotImplementedError,
+    FailedToConnectError
 )
 import dbt.flags as flags
 
@@ -75,7 +75,7 @@ class DBTArgumentParser(argparse.ArgumentParser):
     ):
         mutex_group = self.add_mutually_exclusive_group()
         if not name.startswith('--'):
-            raise InternalException(
+            raise DbtInternalError(
                 'cannot handle optional argument without "--" prefix: '
                 f'got "{name}"'
             )
@@ -141,7 +141,7 @@ def main(args=None):
 
             if log_manager.initialized:
                 logger.debug(traceback.format_exc())
-            elif not isinstance(e, RuntimeException):
+            elif not isinstance(e, DbtRuntimeError):
                 # if it did not come from dbt proper and the logger is not
                 # initialized (so there's no safe path to log to), log the
                 # stack trace at error level.
@@ -207,8 +207,8 @@ def track_run(task):
         dbt.tracking.track_invocation_end(
             config=task.config, args=task.args, result_type="ok"
         )
-    except (NotImplementedException,
-            FailedToConnectException) as e:
+    except (NotImplementedError,
+            FailedToConnectError) as e:
         logger.error('ERROR: {}'.format(e))
         dbt.tracking.track_invocation_end(
             config=task.config, args=task.args, result_type="error"
@@ -231,7 +231,7 @@ def run_from_args(parsed):
 
     logger.info("Running with dbt{}".format(dbt.version.installed))
 
-    # this will convert DbtConfigErrors into RuntimeExceptions
+    # this will convert DbtConfigErrors into DbtRuntimeErrors
     # task could be any one of the task objects
     task = parsed.cls.from_args(args=parsed)
 

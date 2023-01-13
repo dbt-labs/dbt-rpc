@@ -11,7 +11,7 @@ from typing import Optional, Any
 from dbt_rpc.contracts.rpc import (
     RemoteResult,
 )
-from dbt.exceptions import InternalException
+from dbt.exceptions import DbtInternalError
 from dbt.utils import restrict_to
 
 
@@ -137,7 +137,7 @@ class QueueSubscriber(logbook.queues.MultiProcessingSubscriber):
         """
         rv = self._recv_raw(timeout)
         if not isinstance(rv, QueueMessage):
-            raise InternalException(
+            raise DbtInternalError(
                 'Got invalid queue message: {}'.format(rv)
             )
         return rv
@@ -153,7 +153,7 @@ class QueueSubscriber(logbook.queues.MultiProcessingSubscriber):
         elif msg.message_type in QueueMessageType.terminating:
             return msg
         else:
-            raise InternalException(
+            raise DbtInternalError(
                 'Got invalid queue message type {}'.format(msg.message_type)
             )
 

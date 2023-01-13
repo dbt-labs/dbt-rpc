@@ -20,7 +20,7 @@ from dbt.adapters.factory import (
 from dbt_rpc.contracts.rpc import (
     RPCParameters, RemoteResult, TaskHandlerState, RemoteMethodFlags, TaskTags,
 )
-from dbt.exceptions import InternalException
+from dbt.exceptions import DbtInternalError
 from dbt.logger import (
     GLOBAL_LOGGER as logger, list_handler, LogMessage, OutputHandler,
 )
@@ -120,7 +120,7 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
             elif result is not None:
                 handler.emit_result(result)
             else:
-                error = dbt_error(InternalException(
+                error = dbt_error(DbtInternalError(
                     'after request handling, neither result nor error is None!'
                 ))
                 handler.emit_error(error.error)
@@ -211,7 +211,7 @@ class StateHandler:
             if self.handler.result is None:
                 # there wasn't an error before, but there sure is one now
                 self.handler.error = dbt_error(
-                    InternalException(
+                    DbtInternalError(
                         'got an invalid result=None, but state was {}'
                         .format(self.handler.state)
                     )
@@ -313,7 +313,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
     @property
     def method(self) -> str:
         if self.task.METHOD_NAME is None:  # mypy appeasement
-            raise InternalException(
+            raise DbtInternalError(
                 f'In the request handler, got a task({self.task}) with no '
                 'METHOD_NAME'
             )
@@ -352,7 +352,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
             self.started is None or
             self.process is None
         ):
-            raise InternalException(
+            raise DbtInternalError(
                 '_wait_for_results() called before handle()'
             )
 
@@ -374,13 +374,13 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
         elif isinstance(msg, QueueResultMessage):
             return msg.result
         else:
-            raise dbt.exceptions.InternalException(
+            raise dbt.exceptions.DbtInternalError(
                 f'Invalid message type {msg.message_type} ({msg})'
             )
 
     def get_result(self) -> RemoteResult:
         if self.process is None:
-            raise InternalException(
+            raise DbtInternalError(
                 'get_result() called before handle()'
             )
 
@@ -426,7 +426,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
         # note this shouldn't call self.run() as that has different semantics
         # (we want errors to raise)
         if self.process is None:  # mypy appeasement
-            raise InternalException(
+            raise DbtInternalError(
                 'Cannot run a None process'
             )
         self.process.task_exec()
@@ -446,7 +446,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
         # 'connection already closed' exceptions
         cleanup_connections()
         if self.process is None:
-            raise InternalException('self.process is None in start()!')
+            raise DbtInternalError('self.process is None in start()!')
         self.process.start()
         self.state = TaskHandlerState.Running
         super().start()
@@ -486,7 +486,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
             # tasks use this to set their `real_task`.
             self.task.set_config(self.manager.config)
             if self.task_params is None:  # mypy appeasement
-                raise InternalException(
+                raise DbtInternalError(
                     'Task params set to None!'
                 )
 
