@@ -90,7 +90,6 @@ class RemoteMethod(Generic[Parameters, Result]):
 class RemoteManifestMethod(RemoteMethod[Parameters, Result]):
     def __init__(self, args, config, manifest):
         super().__init__(args, config)
-        self.manifest = manifest
 
 
 class RemoteBuiltinMethod(RemoteMethod[Parameters, Result]):
