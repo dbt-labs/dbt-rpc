@@ -20,14 +20,15 @@ from dbt.exceptions import (
     NotImplementedError,
     FailedToConnectError
 )
-import dbt.flags as flags
-
+from dbt.config.utils import parse_cli_vars
+from dbt.flags import get_flags, set_from_args
 from dbt_rpc.task.server import RPCServerTask
 
 
 def initialize_tracking_from_flags():
     # NOTE: this is copied from dbt-core
     # Setting these used to be in UserConfig, but had to be moved here
+    flags = get_flags()
     if flags.SEND_ANONYMOUS_USAGE_STATS:
         dbt.tracking.initialize_tracking(flags.PROFILES_DIR)
     else:
@@ -168,15 +169,12 @@ def adapter_management():
 
 def handle_and_check(args):
     with log_manager.applicationbound():
+        # this also set global flags
         parsed = parse_args(args)
-
-        # Set flags from args, user config, and env vars
-        user_config = read_user_config(flags.PROFILES_DIR)  # This is read again later
-        flags.set_from_args(parsed, user_config)
         initialize_tracking_from_flags()
         # Set log_format from flags
         parsed.cls.set_log_format()
-
+        flags = get_flags()
         # we've parsed the args and set the flags - we can now decide if we're debug or not
         if flags.DEBUG:
             log_manager.set_debug()
@@ -201,21 +199,23 @@ def handle_and_check(args):
 
 @contextmanager
 def track_run(task):
-    dbt.tracking.track_invocation_start(config=task.config, args=task.args)
+    invocation_context = dbt.tracking.get_base_invocation_context()
+    invocation_context["command"] = 'rpc'
+    dbt.tracking.track_invocation_start(invocation_context)
     try:
         yield
         dbt.tracking.track_invocation_end(
-            config=task.config, args=task.args, result_type="ok"
+            invocation_context, result_type="ok"
         )
     except (NotImplementedError,
             FailedToConnectError) as e:
         logger.error('ERROR: {}'.format(e))
         dbt.tracking.track_invocation_end(
-            config=task.config, args=task.args, result_type="error"
+            invocation_context, result_type="error"
         )
     except Exception:
         dbt.tracking.track_invocation_end(
-            config=task.config, args=task.args, result_type="error"
+            invocation_context, result_type="error"
         )
         raise
     finally:
@@ -233,6 +233,7 @@ def run_from_args(parsed):
 
     # this will convert DbtConfigErrors into DbtRuntimeErrors
     # task could be any one of the task objects
+    parsed.vars = parse_cli_vars(parsed.vars)
     task = parsed.cls.from_args(args=parsed)
 
     logger.debug("running dbt with arguments {parsed}", parsed=str(parsed))
@@ -246,7 +247,6 @@ def run_from_args(parsed):
         logger.debug("Tracking: {}".format(dbt.tracking.active_user.state()))
 
     results = None
-
     with track_run(task):
         results = task.run()
 
@@ -492,7 +492,7 @@ def parse_args(args, cls=DBTArgumentParser):
     p.add_argument(
         '--no-anonymous-usage-stats',
         action='store_false',
-        default=None,
+        default=False,
         dest='send_anonymous_usage_stats',
         help='''
         Do not send anonymous usage stat to dbt Labs
@@ -566,19 +566,19 @@ def parse_args(args, cls=DBTArgumentParser):
         sys.exit(1)
 
     parsed = p.parse_args(args)
+
+    # get the correct profiles_dir
+    if os.getenv('DBT_PROFILES_DIR'):
+        parsed.profiles_dir = os.getenv('DBT_PROFILES_DIR')
+    else:
+        from dbt.cli.resolvers import default_profiles_dir
+        parsed.profiles_dir = default_profiles_dir()
     # profiles_dir is set before subcommands and after, so normalize
     if hasattr(parsed, 'sub_profiles_dir'):
         if parsed.sub_profiles_dir is not None:
             parsed.profiles_dir = parsed.sub_profiles_dir
         delattr(parsed, 'sub_profiles_dir')
-    if hasattr(parsed, 'profiles_dir'):
-        if parsed.profiles_dir is None:
-            parsed.profiles_dir = flags.PROFILES_DIR
-        else:
-            parsed.profiles_dir = os.path.abspath(parsed.profiles_dir)
-            # needs to be set before the other flags, because it's needed to
-            # read the profile that contains them
-            flags.PROFILES_DIR = parsed.profiles_dir
+    parsed.profiles_dir = os.path.abspath(parsed.profiles_dir)
 
     # version_check is set before subcommands and after, so normalize
     if hasattr(parsed, 'sub_version_check'):
@@ -595,6 +595,13 @@ def parse_args(args, cls=DBTArgumentParser):
     if getattr(parsed, 'project_dir', None) is not None:
         expanded_user = os.path.expanduser(parsed.project_dir)
         parsed.project_dir = os.path.abspath(expanded_user)
+
+    # set_args construct a flags with command run
+    # which doesn't have defer_mode, but we need a default value
+    parsed.defer_mode = 'eager'
+
+    # create global flags object
+    set_from_args(parsed, None)
 
     if not hasattr(parsed, 'which'):
         # the user did not provide a valid subcommand. trigger the help message

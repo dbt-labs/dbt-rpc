@@ -25,7 +25,7 @@ class RPCTask(
     RemoteManifestMethod[Parameters, RemoteExecutionResult]
 ):
     def __init__(self, args, config, manifest):
-        super().__init__(args, config)
+        super().__init__(args, config, manifest)
         RemoteManifestMethod.__init__(
             self, args, config, manifest  # type: ignore
         )

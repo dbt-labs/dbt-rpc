@@ -12,7 +12,7 @@ from typing_extensions import Protocol
 from dbt.dataclass_schema import dbtClassMixin, ValidationError
 
 import dbt.exceptions
-from dbt.flags import env_set_truthy
+from dbt.flags import env_set_truthy, get_flags, set_from_args
 import dbt.tracking
 from dbt.adapters.factory import (
     cleanup_connections, load_plugin, register_adapter,
@@ -74,8 +74,9 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
         user_config = None
         if self.task.config is not None:
             user_config = self.task.config.user_config
-        dbt.flags.set_from_args(self.task.args, user_config)
-        dbt.tracking.initialize_from_flags()
+        set_from_args(self.task.args, user_config)
+        flags = get_flags()
+        dbt.tracking.initialize_from_flags(flags.SEND_ANONYMOUS_USAGE_STATS, flags.PROFILES_DIR)
         # reload the active plugin
         load_plugin(self.task.config.credentials.type)
         # register it
@@ -96,6 +97,11 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
             # some commands, like 'debug', won't have a threads value at all.
             if getattr(self.task.args, 'threads', None) is not None:
                 self.task.config.threads = self.task.args.threads
+
+            # we previously always set a selector here
+            if not hasattr(self.task.args, 'selector'):
+                object.__setattr__(self.task.args, "selector", None)
+                object.__setattr__(self.task.args, "SELECTOR", None)
             rpc_exception = None
             result = None
             try:

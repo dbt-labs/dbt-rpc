@@ -3,7 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
 
-from dbt import flags
+from dbt.flags import get_flags
 from dbt.contracts.graph.manifest import WritableManifest
 from dbt_rpc.contracts.rpc import (
     GetManifestParameters,
@@ -65,10 +65,11 @@ class RPCCommandTask(
 
 
 def state_path(state: Optional[str]) -> Optional[Path]:
+    flags = get_flags()
     if state is not None:
         return Path(state)
-    elif flags.ARTIFACT_STATE_PATH is not None:
-        return Path(flags.ARTIFACT_STATE_PATH)
+    elif flags.STATE is not None:
+        return Path(flags.STATE)
     else:
         return None
 
@@ -89,7 +90,6 @@ class RemoteCompileProjectTask(
             self.args.threads = params.threads
 
         self.args.state = state_path(params.state)
-
         self.set_previous_state()
 
 
@@ -107,7 +107,7 @@ class RemoteRunProjectTask(RPCCommandTask[RPCRunParameters], RunTask):
         if params.threads is not None:
             self.args.threads = params.threads
         if params.defer is None:
-            self.args.defer = flags.DEFER_MODE
+            self.args.defer = get_flags().DEFER_MODE
         else:
             self.args.defer = params.defer
 
@@ -146,7 +146,7 @@ class RemoteTestProjectTask(RPCCommandTask[RPCTestParameters], TestTask):
         if params.threads is not None:
             self.args.threads = params.threads
         if params.defer is None:
-            self.args.defer = flags.DEFER_MODE
+            self.args.defer = get_flags().DEFER_MODE
         else:
             self.args.defer = params.defer
 
@@ -332,7 +332,7 @@ class RemoteBuildProjectTask(RPCCommandTask[RPCBuildParameters], BuildTask):
         if params.threads is not None:
             self.args.threads = params.threads
         if params.defer is None:
-            self.args.defer = flags.DEFER_MODE
+            self.args.defer = get_flags().DEFER_MODE
         else:
             self.args.defer = params.defer
 

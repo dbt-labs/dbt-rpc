@@ -197,6 +197,7 @@ class TaskManager:
         return True
 
     def parse_manifest(self) -> None:
+        register_adapter(self.config)
         self.manifest = ManifestLoader.get_full_manifest(self.config, reset=True)
 
     def set_compile_exception(self, exc, logs=List[LogMessage]) -> None:

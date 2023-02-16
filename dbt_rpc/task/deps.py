@@ -31,5 +31,7 @@ class RemoteDepsTask(
 
     def handle_request(self) -> RemoteDepsResult:
         _clean_deps(self.config)
+        self.project = self.config
+        self.cli_vars = self.config.cli_vars
         self.run()
         return RemoteDepsResult([])

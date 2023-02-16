@@ -3,8 +3,6 @@ import shlex
 from dbt.clients.yaml_helper import Dumper, yaml  # noqa: F401
 from typing import Type, Optional
 
-
-from dbt.config.utils import parse_cli_vars
 from dbt_rpc.contracts.rpc import RPCCliParameters
 
 from dbt_rpc.rpc.method import (
@@ -27,6 +25,12 @@ class HasCLI(RemoteMethod[Parameters, Result]):
     @abc.abstractmethod
     def handle_request(self) -> Result:
         pass
+
+COMMAND_MAPING = {
+    "freshness": "source-freshness",
+    "snapshot-freshness": "source-freshness",
+    "generate": "docs.generate"
+}
 
 
 class RemoteRPCCli(RPCTask[RPCCliParameters]):
@@ -53,11 +57,25 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
             )
 
     def set_args(self, params: RPCCliParameters) -> None:
-        # NOTE: `parse_args` is pinned to the version of dbt-core installed!
-        from dbt.main import parse_args
-        from dbt_rpc.__main__ import RPCArgumentParser
         split = shlex.split(params.cli)
-        self.args = parse_args(split, RPCArgumentParser)
+
+        from dbt.cli.flags import args_to_context, Flags
+        
+        ctx = args_to_context(split)
+        self.args = Flags(ctx)
+
+        # previously this info is preserved in gloabl flags module
+        from dbt.flags import get_flags
+        object.__setattr__(self.args, 'PROFILES_DIR', get_flags().PROFILES_DIR)
+        object.__setattr__(self.args, 'profiles_dir', get_flags().PROFILES_DIR)
+
+        # this was handled by parse_args in original main before, now move the
+        # logic here
+        if ctx.command.name in COMMAND_MAPING:
+            rpc_method = COMMAND_MAPING[ctx.command.name]
+        else:
+            rpc_method = ctx.command.name
+        object.__setattr__(self.args, 'rpc_method', rpc_method)
         self.task_type = self.get_rpc_task_cls()
 
     def get_flags(self):
@@ -96,14 +114,12 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
         # future calls.
 
         # read any cli vars we got and use it to update cli_vars
-        self.config.cli_vars.update(
-            parse_cli_vars(getattr(self.args, 'vars', '{}'))
-        )
+        self.config.cli_vars.update(self.args.vars)
         # If this changed the vars, rewrite args.vars to reflect our merged
         # vars and reload the manifest.
-        dumped = yaml.safe_dump(self.config.cli_vars)
-        if dumped != self.args.vars:
-            self.real_task.args.vars = dumped
+        if self.config.cli_vars != self.args.vars:
+            object.__setattr__(self.real_task.args, "cli_vars", self.config.cli_vars)
+            object.__setattr__(self.args, "cli_vars", self.config.cli_vars)
             self.config.args = self.args
             if isinstance(self.real_task, RemoteManifestMethod):
                 self.real_task.manifest = ManifestLoader.get_full_manifest(
