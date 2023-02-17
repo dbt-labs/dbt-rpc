@@ -595,10 +595,6 @@ def parse_args(args, cls=DBTArgumentParser):
         expanded_user = os.path.expanduser(parsed.project_dir)
         parsed.project_dir = os.path.abspath(expanded_user)
 
-    # set_args construct a flags with command run
-    # which doesn't have defer_mode, but we need a default value
-    parsed.defer_mode = 'eager'
-
     # create global flags object
     set_from_args(parsed, None)
 

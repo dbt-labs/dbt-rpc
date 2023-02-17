@@ -107,7 +107,7 @@ class RemoteRunProjectTask(RPCCommandTask[RPCRunParameters], RunTask):
         if params.threads is not None:
             self.args.threads = params.threads
         if params.defer is None:
-            self.args.defer = get_flags().DEFER_MODE
+            self.args.defer = get_flags().DEFER
         else:
             self.args.defer = params.defer
 
@@ -146,7 +146,7 @@ class RemoteTestProjectTask(RPCCommandTask[RPCTestParameters], TestTask):
         if params.threads is not None:
             self.args.threads = params.threads
         if params.defer is None:
-            self.args.defer = get_flags().DEFER_MODE
+            self.args.defer = get_flags().DEFER
         else:
             self.args.defer = params.defer
 
@@ -332,7 +332,7 @@ class RemoteBuildProjectTask(RPCCommandTask[RPCBuildParameters], BuildTask):
         if params.threads is not None:
             self.args.threads = params.threads
         if params.defer is None:
-            self.args.defer = get_flags().DEFER_MODE
+            self.args.defer = get_flags().DEFER
         else:
             self.args.defer = params.defer
 
