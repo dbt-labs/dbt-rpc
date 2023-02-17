@@ -13,7 +13,6 @@ from dbt.adapters.factory import reset_adapters, cleanup_connections
 import dbt.tracking
 
 from dbt.utils import ExitCodes
-from dbt.config.profile import read_user_config
 from dbt.exceptions import (
     DbtRuntimeError,
     DbtInternalError,

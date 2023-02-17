@@ -26,6 +26,7 @@ class HasCLI(RemoteMethod[Parameters, Result]):
     def handle_request(self) -> Result:
         pass
 
+
 COMMAND_MAPING = {
     "freshness": "source-freshness",
     "snapshot-freshness": "source-freshness",
@@ -60,7 +61,6 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
         split = shlex.split(params.cli)
 
         from dbt.cli.flags import args_to_context, Flags
-        
         ctx = args_to_context(split)
         self.args = Flags(ctx)
 
