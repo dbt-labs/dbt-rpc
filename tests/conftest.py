@@ -113,7 +113,14 @@ def dbt_profile_data(unique_schema, pytestconfig):
 @pytest.fixture
 def dbt_profile(profiles_root, dbt_profile_data) -> Dict[str, Any]:
     flags.PROFILES_DIR = profiles_root
+    original_profile_dir_env = os.environ.get('DBT_PROFILES_DIR')
+    # we have to do this to make sure the subprocess uses the correct profiles
+    os.environ['DBT_PROFILES_DIR'] = str(profiles_root)
     path = os.path.join(profiles_root, 'profiles.yml')
     with open(path, 'w') as fp:
         fp.write(yaml.safe_dump(dbt_profile_data))
-    return dbt_profile_data
+    yield dbt_profile_data
+    if original_profile_dir_env:
+        os.environ['DBT_PROFILES_DIR'] = original_profile_dir_env
+    else:
+        del os.environ['DBT_PROFILES_DIR']

@@ -648,6 +648,8 @@ class TestArgs:
         self.project_dir = None
         self.profile = None
         self.target = None
+        self.threads = None
+        self.selector = None
         self.__dict__.update(kwargs)
 
 
@@ -678,6 +680,8 @@ def built_schema(project_dir, schema, profiles_dir, project_def):
     os.chdir(project_dir)
     start = os.getcwd()
     try:
+        from dbt.flags import set_from_args
+        set_from_args(args, None)
         cfg = RuntimeConfig.from_args(args)
     finally:
         os.chdir(start)
