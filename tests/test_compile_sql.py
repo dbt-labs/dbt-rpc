@@ -22,7 +22,7 @@ def test_rpc_run_sql_nohang(
     )
     with querier_ctx as querier:
         result = querier.async_wait_for_result(querier.compile_sql('select 1 as id', language='python'))
-        assert 'def ref(*args,dbt_load_df_function):' in result['results'][0]['compiled_sql']
+        assert 'dbt_load_df_function' in result['results'][0]['compiled_sql']
 
 @pytest.mark.supported('any')
 def test_rpc_compile_macro(

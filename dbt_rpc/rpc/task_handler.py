@@ -102,6 +102,11 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
             if not hasattr(self.task.args, 'selector'):
                 object.__setattr__(self.task.args, "selector", None)
                 object.__setattr__(self.task.args, "SELECTOR", None)
+            # pre-1.5 we always set populate_cache to True. This represent parity
+            # with the old behavior, not parity with core
+            if not hasattr(self.task.args, 'populate_cache'):
+                object.__setattr__(self.task.args, "populate_cache", True)
+
             rpc_exception = None
             result = None
             try:
