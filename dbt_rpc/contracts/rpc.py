@@ -10,7 +10,9 @@ from dbt.dataclass_schema import dbtClassMixin, StrEnum
 from dbt.contracts.graph.nodes import ResultNode
 from dbt.contracts.graph.manifest import WritableManifest
 from dbt.contracts.results import (
-    RunResult, RunResultsArtifact, TimingInfo,
+    RunResult,
+    RunResultsArtifact,
+    TimingInfo,
     CatalogArtifact,
     CatalogResults,
     ExecutionResult,
@@ -40,10 +42,10 @@ class RPCParameters(dbtClassMixin):
     @classmethod
     def __pre_deserialize__(cls, data, omit_none=True):
         data = super().__pre_deserialize__(data)
-        if 'timeout' not in data:
-            data['timeout'] = None
-        if 'task_tags' not in data:
-            data['task_tags'] = None
+        if "timeout" not in data:
+            data["timeout"] = None
+        if "task_tags" not in data:
+            data["task_tags"] = None
         return data
 
 
@@ -52,7 +54,7 @@ class RPCExecParameters(RPCParameters):
     name: str
     sql: str
     macros: Optional[str] = None
-    language: Optional[str] = 'sql'
+    language: Optional[str] = "sql"
 
 
 @dataclass
@@ -72,7 +74,7 @@ class RPCListParameters(RPCParameters):
     exclude: Union[None, str, List[str]] = None
     select: Union[None, str, List[str]] = None
     selector: Optional[str] = None
-    output: Optional[str] = 'json'
+    output: Optional[str] = "json"
     output_keys: Optional[List[str]] = None
 
 
@@ -165,6 +167,11 @@ class StatusParameters(RPCParameters):
 
 
 @dataclass
+class SigTParameters(RPCParameters):
+    pass
+
+
+@dataclass
 class GCSettings(dbtClassMixin):
     # start evicting the longest-ago-ended tasks here
     maxsize: int
@@ -186,6 +193,7 @@ class GCParameters(RPCParameters):
         will be applied to the task manager before GC starts. By default the
         existing gc settings remain.
     """
+
     task_ids: Optional[List[TaskID]] = None
     before: Optional[datetime] = None
     settings: Optional[GCSettings] = None
@@ -209,6 +217,7 @@ class RPCSourceFreshnessParameters(RPCParameters):
 class GetManifestParameters(RPCParameters):
     pass
 
+
 # Outputs
 
 
@@ -217,29 +226,29 @@ class RemoteResult(VersionedSchema):
     logs: List[LogMessage]
 
     def __post_serialize__(self, dct):
-        if 'node' in dct:
-            if 'raw_code' in dct['node']:
-                dct['node']['raw_sql'] = dct['node'].pop('raw_code')
-            if 'compiled_code' in dct['node']:
-                dct['node']['compiled_sql'] = dct['node'].pop('compiled_code')
+        if "node" in dct:
+            if "raw_code" in dct["node"]:
+                dct["node"]["raw_sql"] = dct["node"].pop("raw_code")
+            if "compiled_code" in dct["node"]:
+                dct["node"]["compiled_sql"] = dct["node"].pop("compiled_code")
         return dct
 
 
 @dataclass
-@schema_version('remote-list-results', 1)
+@schema_version("remote-list-results", 1)
 class RemoteListResults(RemoteResult):
     output: List[Any]
     generated_at: datetime = field(default_factory=datetime.utcnow)
 
 
 @dataclass
-@schema_version('remote-deps-result', 1)
+@schema_version("remote-deps-result", 1)
 class RemoteDepsResult(RemoteResult):
     generated_at: datetime = field(default_factory=datetime.utcnow)
 
 
 @dataclass
-@schema_version('remote-catalog-result', 1)
+@schema_version("remote-catalog-result", 1)
 class RemoteCatalogResults(CatalogResults, RemoteResult):
     generated_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -263,7 +272,7 @@ class RemoteCompileResultMixin(RemoteResult):
 
 
 @dataclass
-@schema_version('remote-compile-result', 1)
+@schema_version("remote-compile-result", 1)
 class RemoteCompileResult(RemoteCompileResultMixin):
     generated_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -273,19 +282,21 @@ class RemoteCompileResult(RemoteCompileResultMixin):
 
 
 @dataclass
-@schema_version('remote-execution-result', 1)
+@schema_version("remote-execution-result", 1)
 class RemoteExecutionResult(ExecutionResult, RemoteResult):
     results: Sequence[RunResult]
     args: Dict[str, Any] = field(default_factory=dict)
     generated_at: datetime = field(default_factory=datetime.utcnow)
 
     def __post_serialize__(self, dct):
-        for node_dct in dct['results']:
-            if 'node' in node_dct:
-                if 'raw_code' in node_dct['node']:
-                    node_dct['node']['raw_sql'] = node_dct['node'].pop('raw_code')
-                if 'compiled_code' in node_dct['node']:
-                    node_dct['node']['compiled_sql'] = node_dct['node'].pop('compiled_code')
+        for node_dct in dct["results"]:
+            if "node" in node_dct:
+                if "raw_code" in node_dct["node"]:
+                    node_dct["node"]["raw_sql"] = node_dct["node"].pop("raw_code")
+                if "compiled_code" in node_dct["node"]:
+                    node_dct["node"]["compiled_sql"] = node_dct["node"].pop(
+                        "compiled_code"
+                    )
         return dct
 
     def write(self, path: str):
@@ -302,7 +313,7 @@ class RemoteExecutionResult(ExecutionResult, RemoteResult):
         cls,
         base: RunExecutionResult,
         logs: List[LogMessage],
-    ) -> 'RemoteExecutionResult':
+    ) -> "RemoteExecutionResult":
         return cls(
             generated_at=base.generated_at,
             results=base.results,
@@ -319,7 +330,7 @@ class ResultTable(dbtClassMixin):
 
 
 @dataclass
-@schema_version('remote-run-operation-result', 1)
+@schema_version("remote-run-operation-result", 1)
 class RemoteRunOperationResult(RunOperationResult, RemoteResult):
     generated_at: datetime = field(default_factory=datetime.utcnow)
 
@@ -328,7 +339,7 @@ class RemoteRunOperationResult(RunOperationResult, RemoteResult):
         cls,
         base: RunOperationResultsArtifact,
         logs: List[LogMessage],
-    ) -> 'RemoteRunOperationResult':
+    ) -> "RemoteRunOperationResult":
         return cls(
             generated_at=base.metadata.generated_at,
             results=base.results,
@@ -347,15 +358,14 @@ class RemoteRunOperationResult(RunOperationResult, RemoteResult):
 
 
 @dataclass
-@schema_version('remote-freshness-result', 1)
+@schema_version("remote-freshness-result", 1)
 class RemoteFreshnessResult(FreshnessResult, RemoteResult):
-
     @classmethod
     def from_local_result(
         cls,
         base: FreshnessResult,
         logs: List[LogMessage],
-    ) -> 'RemoteFreshnessResult':
+    ) -> "RemoteFreshnessResult":
         return cls(
             metadata=base.metadata,
             results=base.results,
@@ -369,7 +379,7 @@ class RemoteFreshnessResult(FreshnessResult, RemoteResult):
 
 
 @dataclass
-@schema_version('remote-run-result', 1)
+@schema_version("remote-run-result", 1)
 class RemoteRunResult(RemoteCompileResultMixin):
     table: ResultTable
     generated_at: datetime = field(default_factory=datetime.utcnow)
@@ -387,14 +397,21 @@ RPCResult = Union[
 
 # GC types
 
+
 class GCResultState(StrEnum):
-    Deleted = 'deleted'  # successful GC
-    Missing = 'missing'  # nothing to GC
-    Running = 'running'  # can't GC
+    Deleted = "deleted"  # successful GC
+    Missing = "missing"  # nothing to GC
+    Running = "running"  # can't GC
 
 
 @dataclass
-@schema_version('remote-gc-result', 1)
+@schema_version("remote-deps-result", 1)
+class SigTResult(RemoteResult):
+    signaled_at: datetime = field(default_factory=datetime.utcnow)
+
+
+@dataclass
+@schema_version("remote-gc-result", 1)
 class GCResult(RemoteResult):
     logs: List[LogMessage] = field(default_factory=list)
     deleted: List[TaskID] = field(default_factory=list)
@@ -409,21 +426,20 @@ class GCResult(RemoteResult):
         elif state == GCResultState.Deleted:
             self.deleted.append(task_id)
         else:
-            raise DbtInternalError(
-                f'Got invalid state in add_result: {state}'
-            )
+            raise DbtInternalError(f"Got invalid state in add_result: {state}")
+
 
 # Task management types
 
 
 class TaskHandlerState(StrEnum):
-    NotStarted = 'not started'
-    Initializing = 'initializing'
-    Running = 'running'
-    Success = 'success'
-    Error = 'error'
-    Killed = 'killed'
-    Failed = 'failed'
+    NotStarted = "not started"
+    Initializing = "initializing"
+    Running = "running"
+    Success = "success"
+    Error = "error"
+    Killed = "killed"
+    Failed = "failed"
 
     def __lt__(self, other) -> bool:
         """A logical ordering for TaskHandlerState:
@@ -431,7 +447,7 @@ class TaskHandlerState(StrEnum):
         NotStarted < Initializing < Running < (Success, Error, Killed, Failed)
         """
         if not isinstance(other, TaskHandlerState):
-            raise TypeError('cannot compare to non-TaskHandlerState')
+            raise TypeError("cannot compare to non-TaskHandlerState")
         order = (self.NotStarted, self.Initializing, self.Running)
         smaller = set()
         for value in order:
@@ -443,13 +459,11 @@ class TaskHandlerState(StrEnum):
 
     def __le__(self, other) -> bool:
         # so that ((Success <= Error) is True)
-        return ((self < other) or
-                (self == other) or
-                (self.finished and other.finished))
+        return (self < other) or (self == other) or (self.finished and other.finished)
 
     def __gt__(self, other) -> bool:
         if not isinstance(other, TaskHandlerState):
-            raise TypeError('cannot compare to non-TaskHandlerState')
+            raise TypeError("cannot compare to non-TaskHandlerState")
         order = (self.NotStarted, self.Initializing, self.Running)
         smaller = set()
         for value in order:
@@ -460,9 +474,7 @@ class TaskHandlerState(StrEnum):
 
     def __ge__(self, other) -> bool:
         # so that ((Success <= Error) is True)
-        return ((self > other) or
-                (self == other) or
-                (self.finished and other.finished))
+        return (self > other) or (self == other) or (self.finished and other.finished)
 
     @property
     def finished(self) -> bool:
@@ -481,7 +493,7 @@ class TaskTiming(dbtClassMixin):
     @classmethod
     def __pre_deserialize__(cls, data):
         data = super().__pre_deserialize__(data)
-        for field_name in ('start', 'end', 'elapsed'):
+        for field_name in ("start", "end", "elapsed"):
             if field_name not in data:
                 data[field_name] = None
         return data
@@ -498,27 +510,27 @@ class TaskRow(TaskTiming):
 
 
 @dataclass
-@schema_version('remote-ps-result', 1)
+@schema_version("remote-ps-result", 1)
 class PSResult(RemoteResult):
     rows: List[TaskRow]
 
 
 class KillResultStatus(StrEnum):
-    Missing = 'missing'
-    NotStarted = 'not_started'
-    Killed = 'killed'
-    Finished = 'finished'
+    Missing = "missing"
+    NotStarted = "not_started"
+    Killed = "killed"
+    Finished = "finished"
 
 
 @dataclass
-@schema_version('remote-kill-result', 1)
+@schema_version("remote-kill-result", 1)
 class KillResult(RemoteResult):
     state: KillResultStatus = KillResultStatus.Missing
     logs: List[LogMessage] = field(default_factory=list)
 
 
 @dataclass
-@schema_version('remote-manifest-result', 1)
+@schema_version("remote-manifest-result", 1)
 class GetManifestResult(RemoteResult):
     manifest: Optional[WritableManifest] = None
 
@@ -549,29 +561,28 @@ class PollResult(RemoteResult, TaskTiming):
     @classmethod
     def __pre_deserialize__(cls, data):
         data = super().__pre_deserialize__(data)
-        for field_name in ('start', 'end', 'elapsed'):
+        for field_name in ("start", "end", "elapsed"):
             if field_name not in data:
                 data[field_name] = None
         return data
 
 
 @dataclass
-@schema_version('poll-remote-deps-result', 1)
+@schema_version("poll-remote-deps-result", 1)
 class PollRemoteEmptyCompleteResult(PollResult, RemoteResult):
     state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success,
-                             TaskHandlerState.Failed),
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
     )
     generated_at: datetime = field(default_factory=datetime.utcnow)
 
     @classmethod
     def from_result(
-        cls: Type['PollRemoteEmptyCompleteResult'],
+        cls: Type["PollRemoteEmptyCompleteResult"],
         base: RemoteDepsResult,
         tags: TaskTags,
         timing: TaskTiming,
         logs: List[LogMessage],
-    ) -> 'PollRemoteEmptyCompleteResult':
+    ) -> "PollRemoteEmptyCompleteResult":
         return cls(
             logs=logs,
             tags=tags,
@@ -579,12 +590,12 @@ class PollRemoteEmptyCompleteResult(PollResult, RemoteResult):
             start=timing.start,
             end=timing.end,
             elapsed=timing.elapsed,
-            generated_at=base.generated_at
+            generated_at=base.generated_at,
         )
 
 
 @dataclass
-@schema_version('poll-remote-killed-result', 1)
+@schema_version("poll-remote-killed-result", 1)
 class PollKilledResult(PollResult):
     state: TaskHandlerState = field(
         metadata=restrict_to(TaskHandlerState.Killed),
@@ -592,24 +603,23 @@ class PollKilledResult(PollResult):
 
 
 @dataclass
-@schema_version('poll-remote-execution-result', 1)
+@schema_version("poll-remote-execution-result", 1)
 class PollExecuteCompleteResult(
     RemoteExecutionResult,
     PollResult,
 ):
     state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success,
-                             TaskHandlerState.Failed),
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
     )
 
     @classmethod
     def from_result(
-        cls: Type['PollExecuteCompleteResult'],
+        cls: Type["PollExecuteCompleteResult"],
         base: RemoteExecutionResult,
         tags: TaskTags,
         timing: TaskTiming,
         logs: List[LogMessage],
-    ) -> 'PollExecuteCompleteResult':
+    ) -> "PollExecuteCompleteResult":
         return cls(
             results=base.results,
             elapsed_time=base.elapsed_time,
@@ -624,24 +634,23 @@ class PollExecuteCompleteResult(
 
 
 @dataclass
-@schema_version('poll-remote-compile-result', 1)
+@schema_version("poll-remote-compile-result", 1)
 class PollCompileCompleteResult(
     RemoteCompileResult,
     PollResult,
 ):
     state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success,
-                             TaskHandlerState.Failed),
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
     )
 
     @classmethod
     def from_result(
-        cls: Type['PollCompileCompleteResult'],
+        cls: Type["PollCompileCompleteResult"],
         base: RemoteCompileResult,
         tags: TaskTags,
         timing: TaskTiming,
         logs: List[LogMessage],
-    ) -> 'PollCompileCompleteResult':
+    ) -> "PollCompileCompleteResult":
         return cls(
             raw_sql=base.raw_sql,
             compiled_sql=base.compiled_sql,
@@ -653,29 +662,28 @@ class PollCompileCompleteResult(
             start=timing.start,
             end=timing.end,
             elapsed=timing.elapsed,
-            generated_at=base.generated_at
+            generated_at=base.generated_at,
         )
 
 
 @dataclass
-@schema_version('poll-remote-run-result', 1)
+@schema_version("poll-remote-run-result", 1)
 class PollRunCompleteResult(
     RemoteRunResult,
     PollResult,
 ):
     state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success,
-                             TaskHandlerState.Failed),
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
     )
 
     @classmethod
     def from_result(
-        cls: Type['PollRunCompleteResult'],
+        cls: Type["PollRunCompleteResult"],
         base: RemoteRunResult,
         tags: TaskTags,
         timing: TaskTiming,
         logs: List[LogMessage],
-    ) -> 'PollRunCompleteResult':
+    ) -> "PollRunCompleteResult":
         return cls(
             raw_sql=base.raw_sql,
             compiled_sql=base.compiled_sql,
@@ -688,29 +696,28 @@ class PollRunCompleteResult(
             start=timing.start,
             end=timing.end,
             elapsed=timing.elapsed,
-            generated_at=base.generated_at
+            generated_at=base.generated_at,
         )
 
 
 @dataclass
-@schema_version('poll-remote-run-operation-result', 1)
+@schema_version("poll-remote-run-operation-result", 1)
 class PollRunOperationCompleteResult(
     RemoteRunOperationResult,
     PollResult,
 ):
     state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success,
-                             TaskHandlerState.Failed),
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
     )
 
     @classmethod
     def from_result(
-        cls: Type['PollRunOperationCompleteResult'],
+        cls: Type["PollRunOperationCompleteResult"],
         base: RemoteRunOperationResult,
         tags: TaskTags,
         timing: TaskTiming,
         logs: List[LogMessage],
-    ) -> 'PollRunOperationCompleteResult':
+    ) -> "PollRunOperationCompleteResult":
         return cls(
             success=base.success,
             results=base.results,
@@ -726,21 +733,20 @@ class PollRunOperationCompleteResult(
 
 
 @dataclass
-@schema_version('poll-remote-catalog-result', 1)
+@schema_version("poll-remote-catalog-result", 1)
 class PollCatalogCompleteResult(RemoteCatalogResults, PollResult):
     state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success,
-                             TaskHandlerState.Failed),
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
     )
 
     @classmethod
     def from_result(
-        cls: Type['PollCatalogCompleteResult'],
+        cls: Type["PollCatalogCompleteResult"],
         base: RemoteCatalogResults,
         tags: TaskTags,
         timing: TaskTiming,
         logs: List[LogMessage],
-    ) -> 'PollCatalogCompleteResult':
+    ) -> "PollCatalogCompleteResult":
         return cls(
             nodes=base.nodes,
             sources=base.sources,
@@ -757,27 +763,26 @@ class PollCatalogCompleteResult(RemoteCatalogResults, PollResult):
 
 
 @dataclass
-@schema_version('poll-remote-in-progress-result', 1)
+@schema_version("poll-remote-in-progress-result", 1)
 class PollInProgressResult(PollResult):
     pass
 
 
 @dataclass
-@schema_version('poll-remote-get-manifest-result', 1)
+@schema_version("poll-remote-get-manifest-result", 1)
 class PollGetManifestResult(GetManifestResult, PollResult):
     state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success,
-                             TaskHandlerState.Failed),
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
     )
 
     @classmethod
     def from_result(
-        cls: Type['PollGetManifestResult'],
+        cls: Type["PollGetManifestResult"],
         base: GetManifestResult,
         tags: TaskTags,
         timing: TaskTiming,
         logs: List[LogMessage],
-    ) -> 'PollGetManifestResult':
+    ) -> "PollGetManifestResult":
         return cls(
             manifest=base.manifest,
             logs=logs,
@@ -790,21 +795,20 @@ class PollGetManifestResult(GetManifestResult, PollResult):
 
 
 @dataclass
-@schema_version('poll-remote-freshness-result', 1)
+@schema_version("poll-remote-freshness-result", 1)
 class PollFreshnessResult(RemoteFreshnessResult, PollResult):
     state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success,
-                             TaskHandlerState.Failed),
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
     )
 
     @classmethod
     def from_result(
-        cls: Type['PollFreshnessResult'],
+        cls: Type["PollFreshnessResult"],
         base: RemoteFreshnessResult,
         tags: TaskTags,
         timing: TaskTiming,
         logs: List[LogMessage],
-    ) -> 'PollFreshnessResult':
+    ) -> "PollFreshnessResult":
         return cls(
             logs=logs,
             tags=tags,
@@ -817,18 +821,19 @@ class PollFreshnessResult(RemoteFreshnessResult, PollResult):
             elapsed_time=base.elapsed_time,
         )
 
+
 # Manifest parsing types
 
 
 class ManifestStatus(StrEnum):
-    Init = 'init'
-    Compiling = 'compiling'
-    Ready = 'ready'
-    Error = 'error'
+    Init = "init"
+    Compiling = "compiling"
+    Ready = "ready"
+    Error = "error"
 
 
 @dataclass
-@schema_version('remote-status-result', 1)
+@schema_version("remote-status-result", 1)
 class LastParse(RemoteResult):
     state: ManifestStatus = ManifestStatus.Init
     logs: List[LogMessage] = field(default_factory=list)

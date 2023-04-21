@@ -4,9 +4,7 @@ import threading
 import uuid
 from contextlib import contextmanager
 from datetime import datetime
-from typing import (
-    Any, Dict, Union, Optional, List, Type, Callable, Iterator
-)
+from typing import Any, Dict, Union, Optional, List, Type, Callable, Iterator
 from typing_extensions import Protocol
 
 from dbt.dataclass_schema import dbtClassMixin, ValidationError
@@ -15,14 +13,23 @@ import dbt.exceptions
 from dbt.flags import env_set_truthy, get_flags, set_from_args
 import dbt.tracking
 from dbt.adapters.factory import (
-    cleanup_connections, load_plugin, register_adapter,
+    cleanup_connections,
+    load_plugin,
+    register_adapter,
 )
 from dbt_rpc.contracts.rpc import (
-    RPCParameters, RemoteResult, TaskHandlerState, RemoteMethodFlags, TaskTags,
+    RPCParameters,
+    RemoteResult,
+    TaskHandlerState,
+    RemoteMethodFlags,
+    TaskTags,
 )
 from dbt.exceptions import DbtInternalError
 from dbt.logger import (
-    GLOBAL_LOGGER as logger, list_handler, LogMessage, OutputHandler,
+    GLOBAL_LOGGER as logger,
+    list_handler,
+    LogMessage,
+    OutputHandler,
 )
 from dbt_rpc.rpc.error import (
     dbt_error,
@@ -49,7 +56,7 @@ def sigterm_handler(signum, frame):
     raise dbt.exceptions.RPCKilledException(signum)
 
 
-SINGLE_THREADED_HANDLER = env_set_truthy('DBT_SINGLE_THREADED_HANDLER')
+SINGLE_THREADED_HANDLER = env_set_truthy("DBT_SINGLE_THREADED_HANDLER")
 
 
 class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
@@ -76,7 +83,9 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
             user_config = self.task.config.user_config
         set_from_args(self.task.args, user_config)
         flags = get_flags()
-        dbt.tracking.initialize_from_flags(flags.SEND_ANONYMOUS_USAGE_STATS, flags.PROFILES_DIR)
+        dbt.tracking.initialize_from_flags(
+            flags.SEND_ANONYMOUS_USAGE_STATS, flags.PROFILES_DIR
+        )
         # reload the active plugin
         load_plugin(self.task.config.credentials.type)
         # register it
@@ -95,16 +104,16 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
             self._spawn_setup()
             # copy threads over into our credentials, if it exists and is set.
             # some commands, like 'debug', won't have a threads value at all.
-            if getattr(self.task.args, 'threads', None) is not None:
+            if getattr(self.task.args, "threads", None) is not None:
                 self.task.config.threads = self.task.args.threads
 
             # we previously always set a selector here
-            if not hasattr(self.task.args, 'selector'):
+            if not hasattr(self.task.args, "selector"):
                 object.__setattr__(self.task.args, "selector", None)
                 object.__setattr__(self.task.args, "SELECTOR", None)
             # pre-1.5 we always set populate_cache to True. This represent parity
             # with the old behavior, not parity with core
-            if not hasattr(self.task.args, 'populate_cache'):
+            if not hasattr(self.task.args, "populate_cache"):
                 object.__setattr__(self.task.args, "populate_cache", True)
 
             rpc_exception = None
@@ -118,11 +127,11 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
                 # the queue handler we inserted above
                 rpc_exception = dbt_error(exc)
             except dbt.exceptions.Exception as exc:
-                logger.debug('dbt runtime exception', exc_info=True)
+                logger.debug("dbt runtime exception", exc_info=True)
                 rpc_exception = dbt_error(exc)
             except Exception as exc:
                 with OutputHandler(sys.stderr).applicationbound():
-                    logger.error('uncaught python exception', exc_info=True)
+                    logger.error("uncaught python exception", exc_info=True)
                 rpc_exception = server_error(exc)
 
             # put whatever result we got onto the queue as well.
@@ -131,9 +140,11 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
             elif result is not None:
                 handler.emit_result(result)
             else:
-                error = dbt_error(DbtInternalError(
-                    'after request handling, neither result nor error is None!'
-                ))
+                error = dbt_error(
+                    DbtInternalError(
+                        "after request handling, neither result nor error is None!"
+                    )
+                )
                 handler.emit_error(error.error)
 
     def run(self):
@@ -146,15 +157,13 @@ class TaskManagerProtocol(Protocol):
     def set_parsing(self):
         pass
 
-    def set_compile_exception(
-        self, exc: Exception, logs: List[LogMessage]
-    ):
+    def set_compile_exception(self, exc: Exception, logs: List[LogMessage]):
         pass
 
     def set_ready(self, logs: List[LogMessage]):
         pass
 
-    def add_request(self, request: 'RequestTaskHandler') -> Dict[str, Any]:
+    def add_request(self, request: "RequestTaskHandler") -> Dict[str, Any]:
         pass
 
     def parse_manifest(self):
@@ -190,9 +199,8 @@ def _noop_context() -> Iterator[None]:
 def get_results_context(
     flags: RemoteMethodFlags,
     manager: TaskManagerProtocol,
-    logs: Callable[[], List[LogMessage]]
+    logs: Callable[[], List[LogMessage]],
 ) -> Iterator[None]:
-
     if RemoteMethodFlags.BlocksManifestTasks in flags:
         manifest_blocking = set_parse_state_with(manager, logs)
     else:
@@ -207,7 +215,7 @@ def get_results_context(
 class StateHandler:
     """A helper context manager to manage task handler state."""
 
-    def __init__(self, task_handler: 'RequestTaskHandler') -> None:
+    def __init__(self, task_handler: "RequestTaskHandler") -> None:
         self.handler = task_handler
 
     def __enter__(self) -> None:
@@ -223,8 +231,9 @@ class StateHandler:
                 # there wasn't an error before, but there sure is one now
                 self.handler.error = dbt_error(
                     DbtInternalError(
-                        'got an invalid result=None, but state was {}'
-                        .format(self.handler.state)
+                        "got an invalid result=None, but state was {}".format(
+                            self.handler.state
+                        )
                     )
                 )
             elif self.handler.task.interpret_results(self.handler.result):
@@ -309,7 +318,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
         self.task_kwargs: Optional[Dict[str, Any]] = None
         self.task_params: Optional[RPCParameters] = None
         super().__init__(
-            name='{}-handler-{}'.format(self.task_id, self.method),
+            name="{}-handler-{}".format(self.task_id, self.method),
             daemon=True,  # if the RPC server goes away, we probably should too
         )
 
@@ -325,17 +334,14 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
     def method(self) -> str:
         if self.task.METHOD_NAME is None:  # mypy appeasement
             raise DbtInternalError(
-                f'In the request handler, got a task({self.task}) with no '
-                'METHOD_NAME'
+                f"In the request handler, got a task({self.task}) with no "
+                "METHOD_NAME"
             )
         return self.task.METHOD_NAME
 
     @property
     def _single_threaded(self):
-        return bool(
-            self.task.args.single_threaded or
-            SINGLE_THREADED_HANDLER
-        )
+        return bool(self.task.args.single_threaded or SINGLE_THREADED_HANDLER)
 
     @property
     def timeout(self) -> Optional[float]:
@@ -358,14 +364,8 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
         This does not handle joining, but does terminate the process if it
         timed out.
         """
-        if (
-            self.subscriber is None or
-            self.started is None or
-            self.process is None
-        ):
-            raise DbtInternalError(
-                '_wait_for_results() called before handle()'
-            )
+        if self.subscriber is None or self.started is None or self.process is None:
+            raise DbtInternalError("_wait_for_results() called before handle()")
 
         try:
             msg = self.subscriber.dispatch_until_exit(
@@ -386,14 +386,12 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
             return msg.result
         else:
             raise dbt.exceptions.DbtInternalError(
-                f'Invalid message type {msg.message_type} ({msg})'
+                f"Invalid message type {msg.message_type} ({msg})"
             )
 
     def get_result(self) -> RemoteResult:
         if self.process is None:
-            raise DbtInternalError(
-                'get_result() called before handle()'
-            )
+            raise DbtInternalError("get_result() called before handle()")
 
         flags = self.task.get_flags()
 
@@ -429,17 +427,13 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
             # so we can suppress it to avoid stderr stack traces
             pass
 
-    def handle_singlethreaded(
-        self, kwargs: Dict[str, Any], flags: RemoteMethodFlags
-    ):
+    def handle_singlethreaded(self, kwargs: Dict[str, Any], flags: RemoteMethodFlags):
         # in single-threaded mode, we're going to remain synchronous, so call
         # `run`, not `start`, and return an actual result.
         # note this shouldn't call self.run() as that has different semantics
         # (we want errors to raise)
         if self.process is None:  # mypy appeasement
-            raise DbtInternalError(
-                'Cannot run a None process'
-            )
+            raise DbtInternalError("Cannot run a None process")
         self.process.task_exec()
         with StateHandler(self):
             self.result = self.get_result()
@@ -457,7 +451,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
         # 'connection already closed' exceptions
         cleanup_connections()
         if self.process is None:
-            raise DbtInternalError('self.process is None in start()!')
+            raise DbtInternalError("self.process is None in start()!")
         self.process.start()
         self.state = TaskHandlerState.Running
         super().start()
@@ -467,9 +461,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
         cls: Type[RPCParameters] = self.task.get_parameters()
 
         if self.task_kwargs is None:
-            raise TypeError(
-                'task_kwargs were None - unable to collect parameters'
-            )
+            raise TypeError("task_kwargs were None - unable to collect parameters")
 
         try:
             cls.validate(self.task_kwargs)
@@ -497,9 +489,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
             # tasks use this to set their `real_task`.
             self.task.set_config(self.manager.config)
             if self.task_params is None:  # mypy appeasement
-                raise DbtInternalError(
-                    'Task params set to None!'
-                )
+                raise DbtInternalError("Task params set to None!")
 
             if RemoteMethodFlags.Builtin in flags:
                 # bypass the queue, logging, etc: Straight to the method
@@ -519,7 +509,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
             return self.handle_singlethreaded(kwargs, flags)
 
         self.start()
-        return {'request_token': str(self.task_id)}
+        return {"request_token": str(self.task_id)}
 
     def __call__(self, **kwargs: Dict[str, Any]) -> Dict[str, Any]:
         # __call__ happens deep inside jsonrpc's framework
