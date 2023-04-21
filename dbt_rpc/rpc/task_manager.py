@@ -2,12 +2,33 @@ from copy import deepcopy
 import threading
 import uuid
 from datetime import datetime, timedelta
-from typing import (
-    Any, Dict, Optional, List, Union, Set, Callable, Type
-)
+from typing import Any, Dict, Optional, List, Union, Set, Callable, Type
 
 import dbt.exceptions
 import dbt.flags as flags
+
+# Mockey patch the execute method on adapter
+import dbt.adapters.factory
+from dbt.adapters.factory import FACTORY, AdapterRequiredConfig
+
+
+def register_adapter_patch(config: AdapterRequiredConfig) -> None:
+    FACTORY.register_adapter(config)
+
+    def patch(func):
+        def wrapper(*args, **kwargs):
+            print(kwargs["sql"])
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    for adapter in FACTORY.adapters.values():
+        adapter.ConnectionManager.execute = patch(adapter.ConnectionManager.execute)
+
+
+dbt.adapters.factory.register_adapter = register_adapter_patch
+
+
 from dbt.adapters.factory import reset_adapters, register_adapter
 from dbt.contracts.graph.manifest import Manifest
 from dbt_rpc.contracts.rpc import (
@@ -25,8 +46,12 @@ from dbt_rpc.rpc.gc import GarbageCollector
 from dbt_rpc.rpc.task_handler_protocol import TaskHandlerProtocol, TaskHandlerMap
 from dbt_rpc.rpc.task_handler import set_parse_state_with
 from dbt_rpc.rpc.method import (
-    RemoteMethod, RemoteManifestMethod, RemoteBuiltinMethod, TaskTypes,
+    RemoteMethod,
+    RemoteManifestMethod,
+    RemoteBuiltinMethod,
+    TaskTypes,
 )
+
 # pick up our builtin methods
 import dbt_rpc.rpc.builtins  # noqa
 
@@ -37,10 +62,12 @@ from dbt import helper_types  # noqa
 WrappedHandler = Callable[..., Dict[str, Any]]
 
 
-SINGLE_THREADED_WEBSERVER = flags.env_set_truthy('DBT_SINGLE_THREADED_WEBSERVER')
-GC_MAXSIZE = int(flags.env_set_truthy('DBT_RPC_INTERNAL_GC_MAXSIZE') or 1000)
-GC_REAPSIZE = int(flags.env_set_truthy('DBT_RPC_INTERNAL_GC_REAPSIZE') or 500)
-GC_AUTO_REAP_HOURS = int(flags.env_set_truthy('DBT_RPC_INTERNAL_GC_AUTO_REAP_AGE') or 24 * 30)
+SINGLE_THREADED_WEBSERVER = flags.env_set_truthy("DBT_SINGLE_THREADED_WEBSERVER")
+GC_MAXSIZE = int(flags.env_set_truthy("DBT_RPC_INTERNAL_GC_MAXSIZE") or 1000)
+GC_REAPSIZE = int(flags.env_set_truthy("DBT_RPC_INTERNAL_GC_REAPSIZE") or 500)
+GC_AUTO_REAP_HOURS = int(
+    flags.env_set_truthy("DBT_RPC_INTERNAL_GC_AUTO_REAP_AGE") or 24 * 30
+)
 
 
 class UnconditionalError:
@@ -59,12 +86,12 @@ class ParseError(UnconditionalError):
 
 class CurrentlyCompiling(UnconditionalError):
     def __init__(self):
-        exception = dbt.exceptions.RPCCompiling('compile in progress')
+        exception = dbt.exceptions.RPCCompiling("compile in progress")
         super().__init__(exception)
 
 
 class ManifestReloader(threading.Thread):
-    def __init__(self, task_manager: 'TaskManager') -> None:
+    def __init__(self, task_manager: "TaskManager") -> None:
         super().__init__()
         self.task_manager = task_manager
 
@@ -92,7 +119,7 @@ class TaskManager:
         gc_settings = GCSettings(
             maxsize=GC_MAXSIZE,
             reapsize=GC_REAPSIZE,
-            auto_reap_age=timedelta(hours=GC_AUTO_REAP_HOURS)
+            auto_reap_age=timedelta(hours=GC_AUTO_REAP_HOURS),
         )
         self.gc = GarbageCollector(active_tasks=self.active_tasks, settings=gc_settings)
         self.last_parse: LastParse = LastParse(state=ManifestStatus.Init)
@@ -162,14 +189,12 @@ class TaskManager:
         else:
             if self.manifest is None:
                 raise dbt.exceptions.InternalException(
-                    f'Manifest should not be None if the last parse state is '
-                    f'{state}'
+                    f"Manifest should not be None if the last parse state is "
+                    f"{state}"
                 )
             return task(deepcopy(self.args), self.config, self.manifest)
 
-    def rpc_task(
-        self, method_name: str
-    ) -> Union[UnconditionalError, RemoteMethod]:
+    def rpc_task(self, method_name: str) -> Union[UnconditionalError, RemoteMethod]:
         with self._lock:
             task = self._task_types[method_name]
             if issubclass(task, RemoteBuiltinMethod):
@@ -180,9 +205,9 @@ class TaskManager:
                 return task(deepcopy(self.args), self.config)
             else:
                 raise dbt.exceptions.InternalException(
-                    f'Got a task with an invalid type! {task} with method '
-                    f'name {method_name} has a type of {task.__class__}, '
-                    f'should be a RemoteMethod'
+                    f"Got a task with an invalid type! {task} with method "
+                    f"name {method_name} has a type of {task.__class__}, "
+                    f"should be a RemoteMethod"
                 )
 
     def ready(self) -> bool:
@@ -201,21 +226,18 @@ class TaskManager:
         self.manifest = ManifestLoader.get_full_manifest(self.config, reset=True)
 
     def set_compile_exception(self, exc, logs=List[LogMessage]) -> None:
-        assert self.last_parse.state == ManifestStatus.Compiling, \
-            f'invalid state {self.last_parse.state}'
+        assert (
+            self.last_parse.state == ManifestStatus.Compiling
+        ), f"invalid state {self.last_parse.state}"
         self.last_parse = LastParse(
-            error={'message': str(exc)},
-            state=ManifestStatus.Error,
-            logs=logs
+            error={"message": str(exc)}, state=ManifestStatus.Error, logs=logs
         )
 
     def set_ready(self, logs=List[LogMessage]) -> None:
-        assert self.last_parse.state == ManifestStatus.Compiling, \
-            f'invalid state {self.last_parse.state}'
-        self.last_parse = LastParse(
-            state=ManifestStatus.Ready,
-            logs=logs
-        )
+        assert (
+            self.last_parse.state == ManifestStatus.Compiling
+        ), f"invalid state {self.last_parse.state}"
+        self.last_parse = LastParse(state=ManifestStatus.Ready, logs=logs)
 
     def methods(self) -> Set[str]:
         with self._lock:
@@ -223,13 +245,11 @@ class TaskManager:
 
     def currently_compiling(self, *args, **kwargs):
         """Raise an RPC exception to trigger the error handler."""
-        raise dbt_error(dbt.exceptions.RPCCompiling('compile in progress'))
+        raise dbt_error(dbt.exceptions.RPCCompiling("compile in progress"))
 
     def compilation_error(self, *args, **kwargs):
         """Raise an RPC exception to trigger the error handler."""
-        raise dbt_error(
-            dbt.exceptions.RPCLoadException(self.last_parse.error)
-        )
+        raise dbt_error(dbt.exceptions.RPCLoadException(self.last_parse.error))
 
     def get_handler(
         self, method, http_request, json_rpc_request
@@ -264,5 +284,7 @@ class TaskManager:
     ) -> GCResult:
         with self._lock:
             return self.gc.collect_selected(
-                task_ids=task_ids, before=before, settings=settings,
+                task_ids=task_ids,
+                before=before,
+                settings=settings,
             )

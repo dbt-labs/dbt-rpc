@@ -12,6 +12,28 @@ from dbt.dataclass_schema import dbtClassMixin, ValidationError
 import dbt.exceptions
 from dbt.flags import env_set_truthy, get_flags, set_from_args
 import dbt.tracking
+
+# Mockey patch the execute method on adapter
+import dbt.adapters.factory
+from dbt.adapters.factory import FACTORY, AdapterRequiredConfig
+
+
+def register_adapter_patch(config: AdapterRequiredConfig) -> None:
+    FACTORY.register_adapter(config)
+
+    def patch(func):
+        def wrapper(*args, **kwargs):
+            print(kwargs["sql"])
+            return func(*args, **kwargs)
+
+        return wrapper
+
+    for adapter in FACTORY.adapters.values():
+        adapter.ConnectionManager.execute = patch(adapter.ConnectionManager.execute)
+
+
+dbt.adapters.factory.register_adapter = register_adapter_patch
+
 from dbt.adapters.factory import (
     cleanup_connections,
     load_plugin,
