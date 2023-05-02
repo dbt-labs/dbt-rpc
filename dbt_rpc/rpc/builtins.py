@@ -254,7 +254,7 @@ class Poll(RemoteBuiltinMethod[PollParameters, PollResult]):
 
 
 class SigT(RemoteBuiltinMethod[SigTParameters, None]):
-    METHOD_NAME = "restart"
+    METHOD_NAME = "reload"
 
     def set_args(self, params: SigTParameters):
         super().set_args(params)
