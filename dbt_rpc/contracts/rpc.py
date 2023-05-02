@@ -835,3 +835,8 @@ class LastParse(RemoteResult):
     error: Optional[Dict[str, Any]] = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
     pid: int = field(default_factory=os.getpid)
+
+
+@dataclass
+class ReloadParameters(RPCParameters):
+    pass
