@@ -404,7 +404,6 @@ class GCResultState(StrEnum):
     Running = "running"  # can't GC
 
 
-
 @dataclass
 @schema_version("remote-gc-result", 1)
 class GCResult(RemoteResult):
