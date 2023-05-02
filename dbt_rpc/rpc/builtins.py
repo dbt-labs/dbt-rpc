@@ -38,6 +38,7 @@ from dbt_rpc.contracts.rpc import (
     PollRunOperationCompleteResult,
     TaskHandlerState,
     TaskTiming,
+    ReloadParameters,
 )
 from dbt.logger import LogMessage
 from dbt_rpc.rpc.error import dbt_error, RPCException
@@ -256,3 +257,14 @@ class Poll(RemoteBuiltinMethod[PollParameters, PollResult]):
             raise RPCException.from_error(
                 dbt_error(exc, logs=_dict_logs(task_logs))
             )
+
+
+class Reload(RemoteBuiltinMethod[ReloadParameters, None]):
+    METHOD_NAME = "reload"
+
+    def set_args(self, params: ReloadParameters):
+        super().set_args(params)
+
+    def handle_request(self) -> None:
+        os.kill(os.getpid(), signal.SIGHUP)
+        return os.getpid()

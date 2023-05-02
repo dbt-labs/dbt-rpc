@@ -1,6 +1,5 @@
-git+https://github.com/dbt-labs/dbt-core.git#egg=dbt-core&subdirectory=core
-git+https://github.com/dbt-labs/dbt-core.git#egg=dbt-postgres&subdirectory=plugins/postgres
-
+dbt-core~=1.4.0rc1
+dbt-postgres~=1.4.0rc1
 flake8
 pytest
 pytest-xdist
