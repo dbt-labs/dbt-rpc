@@ -25,7 +25,6 @@ from dbt_rpc.contracts.rpc import (
     RemoteCatalogResults,
     RemoteDepsResult,
     RemoteRunOperationResult,
-    SigTResult,
     PollParameters,
     PollResult,
     PollInProgressResult,
@@ -196,7 +195,7 @@ class Poll(RemoteBuiltinMethod[PollParameters, PollResult]):
 
         task_logs: List[LogMessage] = []
         if self.params.logs:
-            task_logs = task.logs[self.params.logs_start :]
+            task_logs = task.logs[self.params.logs_start:]
 
         # Get a state and store it locally so we ignore updates to state,
         # otherwise things will get confusing. States should always be
