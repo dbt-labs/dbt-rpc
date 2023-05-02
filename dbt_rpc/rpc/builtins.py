@@ -7,7 +7,7 @@ import dbt.exceptions
 from dbt_rpc.contracts.rpc import (
     TaskTags,
     StatusParameters,
-    SigTParameters,
+    ReloadParameters,
     LastParse,
     GCParameters,
     GCResult,
@@ -252,10 +252,10 @@ class Poll(RemoteBuiltinMethod[PollParameters, PollResult]):
             raise RPCException.from_error(dbt_error(exc, logs=_dict_logs(task_logs)))
 
 
-class SigT(RemoteBuiltinMethod[SigTParameters, None]):
+class Reload(RemoteBuiltinMethod[ReloadParameters, None]):
     METHOD_NAME = "reload"
 
-    def set_args(self, params: SigTParameters):
+    def set_args(self, params: ReloadParameters):
         super().set_args(params)
 
     def handle_request(self) -> None:

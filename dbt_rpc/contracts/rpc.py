@@ -167,7 +167,7 @@ class StatusParameters(RPCParameters):
 
 
 @dataclass
-class SigTParameters(RPCParameters):
+class ReloadParameters(RPCParameters):
     pass
 
 
@@ -403,11 +403,6 @@ class GCResultState(StrEnum):
     Missing = "missing"  # nothing to GC
     Running = "running"  # can't GC
 
-
-@dataclass
-@schema_version("remote-deps-result", 1)
-class SigTResult(RemoteResult):
-    signaled_at: datetime = field(default_factory=datetime.utcnow)
 
 
 @dataclass
