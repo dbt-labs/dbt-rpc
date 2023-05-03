@@ -358,10 +358,10 @@ def test_get_manifest(
         assert 'manifest' in result
         # manifest is not used for IDE, we are sending back the raw manifest.
         manifest = result['manifest']
-        assert manifest['nodes']['model.test.my_model']['raw_code'] == 'select 1 as id'
+        assert manifest['nodes']['model.test.my_model']['raw_sql'] == 'select 1 as id'
         assert 'manifest' in result
         manifest = result['manifest']
-        assert manifest['nodes']['model.test.my_model']['compiled_code'] == 'select 1 as id'
+        assert manifest['nodes']['model.test.my_model']['raw_sql'] == 'select 1 as id'
 
 
 @pytest.mark.supported('postgres')
