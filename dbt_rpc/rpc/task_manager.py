@@ -161,7 +161,7 @@ class TaskManager:
             return ParseError(self.last_parse.error)
         else:
             if self.manifest is None:
-                raise dbt.exceptions.InternalException(
+                raise dbt.exceptions.DbtInternalError(
                     f'Manifest should not be None if the last parse state is '
                     f'{state}'
                 )
@@ -179,7 +179,7 @@ class TaskManager:
             elif issubclass(task, RemoteMethod):
                 return task(deepcopy(self.args), self.config)
             else:
-                raise dbt.exceptions.InternalException(
+                raise dbt.exceptions.DbtInternalError(
                     f'Got a task with an invalid type! {task} with method '
                     f'name {method_name} has a type of {task.__class__}, '
                     f'should be a RemoteMethod'

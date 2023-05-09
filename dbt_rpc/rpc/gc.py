@@ -74,7 +74,7 @@ class GarbageCollector:
         except KeyError:
             # someone was mutating tasks while we had the lock, that's
             # not right!
-            raise dbt.exceptions.InternalException(
+            raise dbt.exceptions.DbtInternalError(
                 'Got a KeyError for task uuid={} during gc'
                 .format(task_id)
             )
