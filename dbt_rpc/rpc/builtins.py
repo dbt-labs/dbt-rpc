@@ -56,7 +56,7 @@ class GC(RemoteBuiltinMethod[GCParameters, GCResult]):
 
     def handle_request(self) -> GCResult:
         if self.params is None:
-            raise dbt.exceptions.InternalException('GC: params not set')
+            raise dbt.exceptions.DbtInternalError('GC: params not set')
         return self.task_manager.gc_safe(
             task_ids=self.params.task_ids,
             before=self.params.before,
@@ -72,7 +72,7 @@ class Kill(RemoteBuiltinMethod[KillParameters, KillResult]):
 
     def handle_request(self) -> KillResult:
         if self.params is None:
-            raise dbt.exceptions.InternalException('Kill: params not set')
+            raise dbt.exceptions.DbtInternalError('Kill: params not set')
         result = KillResult()
         task: RequestTaskHandler
         try:
@@ -119,7 +119,7 @@ class PS(RemoteBuiltinMethod[PSParameters, PSResult]):
 
     def keep(self, row: TaskRow):
         if self.params is None:
-            raise dbt.exceptions.InternalException('PS: params not set')
+            raise dbt.exceptions.DbtInternalError('PS: params not set')
         if row.state.finished and self.params.completed:
             return True
         elif not row.state.finished and self.params.active:
@@ -140,7 +140,7 @@ def poll_complete(
     timing: TaskTiming, result: Any, tags: TaskTags, logs: List[LogMessage]
 ) -> PollResult:
     if timing.state not in (TaskHandlerState.Success, TaskHandlerState.Failed):
-        raise dbt.exceptions.InternalException(
+        raise dbt.exceptions.DbtInternalError(
             f'got invalid result state in poll_complete: {timing.state}'
         )
 
@@ -176,7 +176,7 @@ def poll_complete(
     elif isinstance(result, RemoteListResults):
         cls = PollListResult
     else:
-        raise dbt.exceptions.InternalException(
+        raise dbt.exceptions.DbtInternalError(
             'got invalid result in poll_complete: {}'.format(result)
         )
     return cls.from_result(result, tags, timing, logs)
@@ -194,7 +194,7 @@ class Poll(RemoteBuiltinMethod[PollParameters, PollResult]):
 
     def handle_request(self) -> PollResult:
         if self.params is None:
-            raise dbt.exceptions.InternalException('Poll: params not set')
+            raise dbt.exceptions.DbtInternalError('Poll: params not set')
         task_id = self.params.request_token
         task: RequestTaskHandler = self.task_manager.get_request(task_id)
 
@@ -221,7 +221,7 @@ class Poll(RemoteBuiltinMethod[PollParameters, PollResult]):
         elif state == TaskHandlerState.Error:
             err = task.error
             if err is None:
-                exc = dbt.exceptions.InternalException(
+                exc = dbt.exceptions.DbtInternalError(
                     f'At end of task {task_id}, error state but error is None'
                 )
                 raise RPCException.from_error(
@@ -233,7 +233,7 @@ class Poll(RemoteBuiltinMethod[PollParameters, PollResult]):
         elif state in (TaskHandlerState.Success, TaskHandlerState.Failed):
 
             if task.result is None:
-                exc = dbt.exceptions.InternalException(
+                exc = dbt.exceptions.DbtInternalError(
                     f'At end of task {task_id}, state={state} but result is '
                     'None'
                 )
@@ -256,7 +256,7 @@ class Poll(RemoteBuiltinMethod[PollParameters, PollResult]):
                 elapsed=timing.elapsed,
             )
         else:
-            exc = dbt.exceptions.InternalException(
+            exc = dbt.exceptions.DbtInternalError(
                 f'Got unknown value state={state} for task {task_id}'
             )
             raise RPCException.from_error(
