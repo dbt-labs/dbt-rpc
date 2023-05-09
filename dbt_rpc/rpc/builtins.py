@@ -5,6 +5,8 @@ from typing import Type, Union, Any, List, Dict
 
 import dbt.exceptions
 from dbt_rpc.contracts.rpc import (
+    PollListResult,
+    RemoteListResults,
     TaskTags,
     StatusParameters,
     ReloadParameters,
@@ -150,6 +152,7 @@ def poll_complete(
             PollRunOperationCompleteResult,
             PollGetManifestResult,
             PollFreshnessResult,
+            PollListResult,
         ]
     ]
 
@@ -170,6 +173,8 @@ def poll_complete(
         cls = PollGetManifestResult
     elif isinstance(result, RemoteFreshnessResult):
         cls = PollFreshnessResult
+    elif isinstance(result, RemoteListResults):
+        cls = PollListResult
     else:
         raise dbt.exceptions.InternalException(
             "got invalid result in poll_complete: {}".format(result)

@@ -787,6 +787,32 @@ class PollGetManifestResult(GetManifestResult, PollResult):
             elapsed=timing.elapsed,
         )
 
+@dataclass
+@schema_version('poll-remote-list-result', 1)
+class PollListResult(RemoteListResults, PollResult):
+    state: TaskHandlerState = field(
+        metadata=restrict_to(TaskHandlerState.Success,
+                             TaskHandlerState.Failed),
+    )
+
+    @classmethod
+    def from_result(
+        cls: Type['PollListResult'],
+        base: RemoteListResults,
+        tags: TaskTags,
+        timing: TaskTiming,
+        logs: List[LogMessage],
+    ) -> 'PollListResult':
+        return cls(
+            output=base.output,
+            logs=logs,
+            tags=tags,
+            state=timing.state,
+            start=timing.start,
+            end=timing.end,
+            elapsed=timing.elapsed,
+        )
+
 
 @dataclass
 @schema_version("poll-remote-freshness-result", 1)
