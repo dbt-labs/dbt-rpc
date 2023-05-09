@@ -787,6 +787,7 @@ class PollGetManifestResult(GetManifestResult, PollResult):
             elapsed=timing.elapsed,
         )
 
+
 @dataclass
 @schema_version('poll-remote-list-result', 1)
 class PollListResult(RemoteListResults, PollResult):
