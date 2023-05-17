@@ -42,14 +42,14 @@ class TaskHandlerProtocol(Protocol):
 
     def _assert_started(self) -> datetime:
         if self.started is None:
-            raise dbt.exceptions.InternalException(
+            raise dbt.exceptions.DbtInternalError(
                 'task handler started but start time is not set'
             )
         return self.started
 
     def _assert_ended(self) -> datetime:
         if self.ended is None:
-            raise dbt.exceptions.InternalException(
+            raise dbt.exceptions.DbtInternalError(
                 'task handler finished but end time is not set'
             )
         return self.ended

@@ -60,7 +60,7 @@ class RequestDispatcher(Dict[str, Callable[..., Dict[str, Any]]]):
                 self.manager, handler, self.http_request, self.json_rpc_request
             )
         else:
-            raise dbt.exceptions.InternalException(
+            raise dbt.exceptions.DbtInternalError(
                 f'Got an invalid handler from get_handler. Expected None, '
                 f'callable, or RemoteMethod, got {handler}'
             )
