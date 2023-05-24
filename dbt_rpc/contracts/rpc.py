@@ -10,6 +10,7 @@ from dbt.dataclass_schema import dbtClassMixin, StrEnum
 from dbt.contracts.graph.nodes import ResultNode
 from dbt.contracts.graph.manifest import WritableManifest
 from dbt.contracts.results import (
+    NodeStatus,
     RunResult,
     RunResultsArtifact,
     TimingInfo,
@@ -18,8 +19,6 @@ from dbt.contracts.results import (
     ExecutionResult,
     FreshnessExecutionResultArtifact,
     FreshnessResult,
-    RunOperationResult,
-    RunOperationResultsArtifact,
     RunExecutionResult,
 )
 from dbt.contracts.util import VersionedSchema, schema_version
@@ -322,39 +321,32 @@ class RemoteExecutionResult(ExecutionResult, RemoteResult):
             logs=logs,
         )
 
+@dataclass
+@schema_version("poll-remote-run-operation-result", 1)
+class RunOperationCompleteResult(
+    RemoteExecutionResult,
+):
+    success: bool = field(default_factory=bool)
+    @classmethod
+    def from_local_result(
+        cls,
+        base: RunExecutionResult,
+        logs: List[LogMessage],
+    ) -> "RemoteExecutionResult":
+        return cls(
+            generated_at=base.generated_at,
+            results=base.results,
+            elapsed_time=base.elapsed_time,
+            args=base.args,
+            logs=logs,
+            success=all(result.status == NodeStatus.Success for result in base.results),
+        )
+
 
 @dataclass
 class ResultTable(dbtClassMixin):
     column_names: List[str]
     rows: List[Any]
-
-
-@dataclass
-@schema_version("remote-run-operation-result", 1)
-class RemoteRunOperationResult(RunOperationResult, RemoteResult):
-    generated_at: datetime = field(default_factory=datetime.utcnow)
-
-    @classmethod
-    def from_local_result(
-        cls,
-        base: RunOperationResultsArtifact,
-        logs: List[LogMessage],
-    ) -> "RemoteRunOperationResult":
-        return cls(
-            generated_at=base.metadata.generated_at,
-            results=base.results,
-            elapsed_time=base.elapsed_time,
-            success=base.success,
-            logs=logs,
-        )
-
-    def write(self, path: str):
-        writable = RunOperationResultsArtifact.from_success(
-            success=self.success,
-            generated_at=self.generated_at,
-            elapsed_time=self.elapsed_time,
-        )
-        writable.write(path)
 
 
 @dataclass
@@ -391,7 +383,6 @@ RPCResult = Union[
     RemoteFreshnessResult,
     RemoteCatalogResults,
     RemoteDepsResult,
-    RemoteRunOperationResult,
 ]
 
 
@@ -626,6 +617,37 @@ class PollExecuteCompleteResult(
             generated_at=base.generated_at,
         )
 
+@dataclass
+@schema_version("poll-remote-execution-result", 1)
+class PollRunOperationCompleteResult(
+    RunOperationCompleteResult,
+    PollResult,
+):
+    state: TaskHandlerState = field(
+        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
+    )
+
+    @classmethod
+    def from_result(
+        cls: Type["PollRunOperationCompleteResult"],
+        base: RemoteExecutionResult,
+        tags: TaskTags,
+        timing: TaskTiming,
+        logs: List[LogMessage],
+    ) -> "PollRunOperationCompleteResult":
+        return cls(
+            results=base.results,
+            elapsed_time=base.elapsed_time,
+            logs=logs,
+            tags=tags,
+            state=timing.state,
+            start=timing.start,
+            end=timing.end,
+            elapsed=timing.elapsed,
+            generated_at=base.generated_at,
+            success=base.success,
+        )
+
 
 @dataclass
 @schema_version("poll-remote-compile-result", 1)
@@ -693,37 +715,6 @@ class PollRunCompleteResult(
             generated_at=base.generated_at,
         )
 
-
-@dataclass
-@schema_version("poll-remote-run-operation-result", 1)
-class PollRunOperationCompleteResult(
-    RemoteRunOperationResult,
-    PollResult,
-):
-    state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
-    )
-
-    @classmethod
-    def from_result(
-        cls: Type["PollRunOperationCompleteResult"],
-        base: RemoteRunOperationResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
-    ) -> "PollRunOperationCompleteResult":
-        return cls(
-            success=base.success,
-            results=base.results,
-            generated_at=base.generated_at,
-            elapsed_time=base.elapsed_time,
-            logs=logs,
-            tags=tags,
-            state=timing.state,
-            start=timing.start,
-            end=timing.end,
-            elapsed=timing.elapsed,
-        )
 
 
 @dataclass

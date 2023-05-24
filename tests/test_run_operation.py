@@ -17,6 +17,9 @@ macros_data = '''
 {% endmacro %}
 '''
 
+def _check_success(result):
+    assert 'state' in result
+    assert result['state'] == 'success'
 
 @pytest.mark.supported('postgres')
 def test_run_operation(
@@ -40,15 +43,13 @@ def test_run_operation(
             querier.run_operation(macro='foo', args={})
         )
 
-        assert 'success' in poll_result
-        assert poll_result['success'] is True
+        _check_success(poll_result)
 
         poll_result = querier.async_wait_for_result(
             querier.run_operation(macro='bar', args={'value': 10})
         )
 
-        assert 'success' in poll_result
-        assert poll_result['success'] is True
+        _check_success(poll_result)
 
         poll_result = querier.async_wait_for_result(
             querier.run_operation(macro='baz', args={}),
@@ -60,8 +61,7 @@ def test_run_operation(
         poll_result = querier.async_wait_for_result(
             querier.run_operation(macro='quux', args={})
         )
-        assert 'success' in poll_result
-        assert poll_result['success'] is True
+        _check_success(poll_result)
 
 
 @pytest.mark.supported('postgres')
@@ -85,17 +85,14 @@ def test_run_operation_cli(
         poll_result = querier.async_wait_for_result(
             querier.cli_args(cli='run-operation foo')
         )
-
-        assert 'success' in poll_result
-        assert poll_result['success'] is True
+        _check_success(poll_result)
 
         bar_cmd = '''run-operation bar --args="{'value': 10}"'''
         poll_result = querier.async_wait_for_result(
             querier.cli_args(cli=bar_cmd)
         )
 
-        assert 'success' in poll_result
-        assert poll_result['success'] is True
+        _check_success(poll_result)
 
         poll_result = querier.async_wait_for_result(
             querier.cli_args(cli='run-operation baz'),
@@ -107,6 +104,5 @@ def test_run_operation_cli(
         poll_result = querier.async_wait_for_result(
             querier.cli_args(cli='run-operation quux')
         )
-        assert 'success' in poll_result
-        assert poll_result['success'] is True
+        _check_success(poll_result)
 

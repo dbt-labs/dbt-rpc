@@ -6,7 +6,9 @@ from typing import Type, Union, Any, List, Dict
 import dbt.exceptions
 from dbt_rpc.contracts.rpc import (
     PollListResult,
+    PollRunOperationCompleteResult,
     RemoteListResults,
+    RunOperationCompleteResult,
     TaskTags,
     StatusParameters,
     ReloadParameters,
@@ -26,7 +28,6 @@ from dbt_rpc.contracts.rpc import (
     RemoteCompileResult,
     RemoteCatalogResults,
     RemoteDepsResult,
-    RemoteRunOperationResult,
     PollParameters,
     PollResult,
     PollInProgressResult,
@@ -38,7 +39,6 @@ from dbt_rpc.contracts.rpc import (
     PollCatalogCompleteResult,
     PollFreshnessResult,
     PollRemoteEmptyCompleteResult,
-    PollRunOperationCompleteResult,
     TaskHandlerState,
     TaskTiming,
 )
@@ -149,10 +149,10 @@ def poll_complete(
             PollCompileCompleteResult,
             PollCatalogCompleteResult,
             PollRemoteEmptyCompleteResult,
-            PollRunOperationCompleteResult,
             PollGetManifestResult,
             PollFreshnessResult,
             PollListResult,
+            PollRunOperationCompleteResult
         ]
     ]
 
@@ -167,14 +167,14 @@ def poll_complete(
         cls = PollCatalogCompleteResult
     elif isinstance(result, RemoteDepsResult):
         cls = PollRemoteEmptyCompleteResult
-    elif isinstance(result, RemoteRunOperationResult):
-        cls = PollRunOperationCompleteResult
     elif isinstance(result, GetManifestResult):
         cls = PollGetManifestResult
     elif isinstance(result, RemoteFreshnessResult):
         cls = PollFreshnessResult
     elif isinstance(result, RemoteListResults):
         cls = PollListResult
+    elif isinstance(result, RunOperationCompleteResult):
+        cls = PollRunOperationCompleteResult
     else:
         raise dbt.exceptions.DbtInternalError(
             "got invalid result in poll_complete: {}".format(result)
