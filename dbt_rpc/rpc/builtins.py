@@ -26,7 +26,6 @@ from dbt_rpc.contracts.rpc import (
     RemoteCompileResult,
     RemoteCatalogResults,
     RemoteDepsResult,
-    RemoteRunOperationResult,
     PollParameters,
     PollResult,
     PollInProgressResult,
@@ -38,7 +37,6 @@ from dbt_rpc.contracts.rpc import (
     PollCatalogCompleteResult,
     PollFreshnessResult,
     PollRemoteEmptyCompleteResult,
-    PollRunOperationCompleteResult,
     TaskHandlerState,
     TaskTiming,
 )
@@ -149,7 +147,6 @@ def poll_complete(
             PollCompileCompleteResult,
             PollCatalogCompleteResult,
             PollRemoteEmptyCompleteResult,
-            PollRunOperationCompleteResult,
             PollGetManifestResult,
             PollFreshnessResult,
             PollListResult,
@@ -167,8 +164,6 @@ def poll_complete(
         cls = PollCatalogCompleteResult
     elif isinstance(result, RemoteDepsResult):
         cls = PollRemoteEmptyCompleteResult
-    elif isinstance(result, RemoteRunOperationResult):
-        cls = PollRunOperationCompleteResult
     elif isinstance(result, GetManifestResult):
         cls = PollGetManifestResult
     elif isinstance(result, RemoteFreshnessResult):

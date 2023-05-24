@@ -18,8 +18,6 @@ from dbt.contracts.results import (
     ExecutionResult,
     FreshnessExecutionResultArtifact,
     FreshnessResult,
-    RunOperationResult,
-    RunOperationResultsArtifact,
     RunExecutionResult,
 )
 from dbt.contracts.util import VersionedSchema, schema_version
@@ -330,34 +328,6 @@ class ResultTable(dbtClassMixin):
 
 
 @dataclass
-@schema_version("remote-run-operation-result", 1)
-class RemoteRunOperationResult(RunOperationResult, RemoteResult):
-    generated_at: datetime = field(default_factory=datetime.utcnow)
-
-    @classmethod
-    def from_local_result(
-        cls,
-        base: RunOperationResultsArtifact,
-        logs: List[LogMessage],
-    ) -> "RemoteRunOperationResult":
-        return cls(
-            generated_at=base.metadata.generated_at,
-            results=base.results,
-            elapsed_time=base.elapsed_time,
-            success=base.success,
-            logs=logs,
-        )
-
-    def write(self, path: str):
-        writable = RunOperationResultsArtifact.from_success(
-            success=self.success,
-            generated_at=self.generated_at,
-            elapsed_time=self.elapsed_time,
-        )
-        writable.write(path)
-
-
-@dataclass
 @schema_version("remote-freshness-result", 1)
 class RemoteFreshnessResult(FreshnessResult, RemoteResult):
     @classmethod
@@ -391,7 +361,6 @@ RPCResult = Union[
     RemoteFreshnessResult,
     RemoteCatalogResults,
     RemoteDepsResult,
-    RemoteRunOperationResult,
 ]
 
 
@@ -691,38 +660,6 @@ class PollRunCompleteResult(
             end=timing.end,
             elapsed=timing.elapsed,
             generated_at=base.generated_at,
-        )
-
-
-@dataclass
-@schema_version("poll-remote-run-operation-result", 1)
-class PollRunOperationCompleteResult(
-    RemoteRunOperationResult,
-    PollResult,
-):
-    state: TaskHandlerState = field(
-        metadata=restrict_to(TaskHandlerState.Success, TaskHandlerState.Failed),
-    )
-
-    @classmethod
-    def from_result(
-        cls: Type["PollRunOperationCompleteResult"],
-        base: RemoteRunOperationResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
-    ) -> "PollRunOperationCompleteResult":
-        return cls(
-            success=base.success,
-            results=base.results,
-            generated_at=base.generated_at,
-            elapsed_time=base.elapsed_time,
-            logs=logs,
-            tags=tags,
-            state=timing.state,
-            start=timing.start,
-            end=timing.end,
-            elapsed=timing.elapsed,
         )
 
 

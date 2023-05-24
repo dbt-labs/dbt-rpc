@@ -17,11 +17,11 @@ from dbt_rpc.contracts.rpc import (
     RemoteCatalogResults,
     RemoteExecutionResult,
     RemoteListResults,
-    RemoteRunOperationResult,
     RPCSnapshotParameters,
     RPCSourceFreshnessParameters,
     RPCListParameters,
     RPCBuildParameters,
+    RemoteRunResult,
 )
 from dbt.exceptions import DbtRuntimeError
 from dbt_rpc.rpc.method import (
@@ -183,8 +183,8 @@ class RemoteDocsGenerateProjectTask(
 
 class RemoteRunOperationTask(
     RunOperationTask,
-    RemoteManifestMethod[RPCRunOperationParameters, RemoteRunOperationResult],
-    HasCLI[RPCRunOperationParameters, RemoteRunOperationResult],
+    RemoteManifestMethod[RPCRunOperationParameters, RemoteRunResult],
+    HasCLI[RPCRunOperationParameters, RemoteRunResult],
 ):
     METHOD_NAME = 'run-operation'
 
@@ -211,9 +211,9 @@ class RemoteRunOperationTask(
     def _runtime_initialize(self):
         return RunOperationTask._runtime_initialize(self)
 
-    def handle_request(self) -> RemoteRunOperationResult:
+    def handle_request(self) -> RemoteRunResult:
         base = RunOperationTask.run(self)
-        result = RemoteRunOperationResult.from_local_result(base=base, logs=[])
+        result = RemoteRunResult.from_local_result(base=base, logs=[])
         return result
 
     def interpret_results(self, results):
