@@ -26,9 +26,9 @@ from dbt.exceptions import DbtInternalError
 from dbt.logger import LogMessage
 from dbt.utils import restrict_to
 
-
 TaskTags = Optional[Dict[str, Any]]
 TaskID = uuid.UUID
+
 
 # Inputs
 
@@ -309,9 +309,9 @@ class RemoteExecutionResult(ExecutionResult, RemoteResult):
 
     @classmethod
     def from_local_result(
-        cls,
-        base: RunExecutionResult,
-        logs: List[LogMessage],
+            cls,
+            base: RunExecutionResult,
+            logs: List[LogMessage],
     ) -> "RemoteExecutionResult":
         return cls(
             generated_at=base.generated_at,
@@ -321,17 +321,19 @@ class RemoteExecutionResult(ExecutionResult, RemoteResult):
             logs=logs,
         )
 
+
 @dataclass
 @schema_version("poll-remote-run-operation-result", 1)
 class RunOperationCompleteResult(
     RemoteExecutionResult,
 ):
     success: bool = field(default_factory=bool)
+
     @classmethod
     def from_local_result(
-        cls,
-        base: RunExecutionResult,
-        logs: List[LogMessage],
+            cls,
+            base: RunExecutionResult,
+            logs: List[LogMessage],
     ) -> "RemoteExecutionResult":
         return cls(
             generated_at=base.generated_at,
@@ -354,9 +356,9 @@ class ResultTable(dbtClassMixin):
 class RemoteFreshnessResult(FreshnessResult, RemoteResult):
     @classmethod
     def from_local_result(
-        cls,
-        base: FreshnessResult,
-        logs: List[LogMessage],
+            cls,
+            base: FreshnessResult,
+            logs: List[LogMessage],
     ) -> "RemoteFreshnessResult":
         return cls(
             metadata=base.metadata,
@@ -562,11 +564,11 @@ class PollRemoteEmptyCompleteResult(PollResult, RemoteResult):
 
     @classmethod
     def from_result(
-        cls: Type["PollRemoteEmptyCompleteResult"],
-        base: RemoteDepsResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type["PollRemoteEmptyCompleteResult"],
+            base: RemoteDepsResult,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> "PollRemoteEmptyCompleteResult":
         return cls(
             logs=logs,
@@ -599,11 +601,11 @@ class PollExecuteCompleteResult(
 
     @classmethod
     def from_result(
-        cls: Type["PollExecuteCompleteResult"],
-        base: RemoteExecutionResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type["PollExecuteCompleteResult"],
+            base: RemoteExecutionResult,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> "PollExecuteCompleteResult":
         return cls(
             results=base.results,
@@ -617,6 +619,7 @@ class PollExecuteCompleteResult(
             generated_at=base.generated_at,
         )
 
+
 @dataclass
 @schema_version("poll-remote-execution-result", 1)
 class PollRunOperationCompleteResult(
@@ -629,11 +632,11 @@ class PollRunOperationCompleteResult(
 
     @classmethod
     def from_result(
-        cls: Type["PollRunOperationCompleteResult"],
-        base: RemoteExecutionResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type["PollRunOperationCompleteResult"],
+            base: RemoteExecutionResult,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> "PollRunOperationCompleteResult":
         return cls(
             results=base.results,
@@ -661,11 +664,11 @@ class PollCompileCompleteResult(
 
     @classmethod
     def from_result(
-        cls: Type["PollCompileCompleteResult"],
-        base: RemoteCompileResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type["PollCompileCompleteResult"],
+            base: RemoteCompileResult,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> "PollCompileCompleteResult":
         return cls(
             raw_sql=base.raw_sql,
@@ -694,11 +697,11 @@ class PollRunCompleteResult(
 
     @classmethod
     def from_result(
-        cls: Type["PollRunCompleteResult"],
-        base: RemoteRunResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type["PollRunCompleteResult"],
+            base: RemoteRunResult,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> "PollRunCompleteResult":
         return cls(
             raw_sql=base.raw_sql,
@@ -716,7 +719,6 @@ class PollRunCompleteResult(
         )
 
 
-
 @dataclass
 @schema_version("poll-remote-catalog-result", 1)
 class PollCatalogCompleteResult(RemoteCatalogResults, PollResult):
@@ -726,11 +728,11 @@ class PollCatalogCompleteResult(RemoteCatalogResults, PollResult):
 
     @classmethod
     def from_result(
-        cls: Type["PollCatalogCompleteResult"],
-        base: RemoteCatalogResults,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type["PollCatalogCompleteResult"],
+            base: RemoteCatalogResults,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> "PollCatalogCompleteResult":
         return cls(
             nodes=base.nodes,
@@ -762,11 +764,11 @@ class PollGetManifestResult(GetManifestResult, PollResult):
 
     @classmethod
     def from_result(
-        cls: Type["PollGetManifestResult"],
-        base: GetManifestResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type["PollGetManifestResult"],
+            base: GetManifestResult,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> "PollGetManifestResult":
         return cls(
             manifest=base.manifest,
@@ -789,11 +791,11 @@ class PollListResult(RemoteListResults, PollResult):
 
     @classmethod
     def from_result(
-        cls: Type['PollListResult'],
-        base: RemoteListResults,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type['PollListResult'],
+            base: RemoteListResults,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> 'PollListResult':
         return cls(
             output=base.output,
@@ -815,11 +817,11 @@ class PollFreshnessResult(RemoteFreshnessResult, PollResult):
 
     @classmethod
     def from_result(
-        cls: Type["PollFreshnessResult"],
-        base: RemoteFreshnessResult,
-        tags: TaskTags,
-        timing: TaskTiming,
-        logs: List[LogMessage],
+            cls: Type["PollFreshnessResult"],
+            base: RemoteFreshnessResult,
+            tags: TaskTags,
+            timing: TaskTiming,
+            logs: List[LogMessage],
     ) -> "PollFreshnessResult":
         return cls(
             logs=logs,

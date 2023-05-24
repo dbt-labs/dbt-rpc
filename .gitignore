@@ -10,3 +10,4 @@
 /env/
 test.env
 __pycache__/
+.idea/
