@@ -3,8 +3,21 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional, Union
 
-from dbt.flags import get_flags
 from dbt.contracts.graph.manifest import WritableManifest
+from dbt.exceptions import DbtRuntimeError
+from dbt.flags import get_flags
+from dbt.task.base import BaseTask
+from dbt.task.build import BuildTask
+from dbt.task.compile import CompileTask
+from dbt.task.freshness import FreshnessTask
+from dbt.task.generate import GenerateTask
+from dbt.task.list import ListTask
+from dbt.task.run import RunTask
+from dbt.task.run_operation import RunOperationTask
+from dbt.task.seed import SeedTask
+from dbt.task.snapshot import SnapshotTask
+from dbt.task.test import TestTask
+
 from dbt_rpc.contracts.rpc import (
     GetManifestParameters,
     GetManifestResult,
@@ -17,29 +30,15 @@ from dbt_rpc.contracts.rpc import (
     RemoteCatalogResults,
     RemoteExecutionResult,
     RemoteListResults,
-    RemoteRunOperationResult,
     RPCSnapshotParameters,
     RPCSourceFreshnessParameters,
     RPCListParameters,
     RPCBuildParameters,
+    RunOperationCompleteResult,
 )
-from dbt.exceptions import DbtRuntimeError
 from dbt_rpc.rpc.method import (
     Parameters, RemoteManifestMethod
 )
-
-from dbt.task.base import BaseTask
-from dbt.task.compile import CompileTask
-from dbt.task.freshness import FreshnessTask
-from dbt.task.generate import GenerateTask
-from dbt.task.run import RunTask
-from dbt.task.run_operation import RunOperationTask
-from dbt.task.seed import SeedTask
-from dbt.task.snapshot import SnapshotTask
-from dbt.task.test import TestTask
-from dbt.task.list import ListTask
-from dbt.task.build import BuildTask
-
 from .base import RPCTask
 from .cli import HasCLI
 
@@ -183,8 +182,8 @@ class RemoteDocsGenerateProjectTask(
 
 class RemoteRunOperationTask(
     RunOperationTask,
-    RemoteManifestMethod[RPCRunOperationParameters, RemoteRunOperationResult],
-    HasCLI[RPCRunOperationParameters, RemoteRunOperationResult],
+    RemoteManifestMethod[RPCRunOperationParameters, RunOperationCompleteResult],
+    HasCLI[RPCRunOperationParameters, RunOperationCompleteResult],
 ):
     METHOD_NAME = 'run-operation'
 
@@ -211,13 +210,14 @@ class RemoteRunOperationTask(
     def _runtime_initialize(self):
         return RunOperationTask._runtime_initialize(self)
 
-    def handle_request(self) -> RemoteRunOperationResult:
+    def handle_request(self) -> RunOperationCompleteResult:
         base = RunOperationTask.run(self)
-        result = RemoteRunOperationResult.from_local_result(base=base, logs=[])
+        base.generated_at = datetime.utcnow()
+        result = RunOperationCompleteResult.from_local_result(base=base, logs=[])
         return result
 
-    def interpret_results(self, results):
-        return results.success
+    # def interpret_results(self, results):
+    #     return results[].success
 
 
 class RemoteSnapshotTask(RPCCommandTask[RPCSnapshotParameters], SnapshotTask):

@@ -1,12 +1,10 @@
 from dbt.contracts.results import (
     RunResult,
-    RunOperationResult,
     FreshnessResult,
 )
 from dbt_rpc.contracts.rpc import (
     RemoteExecutionResult,
     RemoteFreshnessResult,
-    RemoteRunOperationResult,
 )
 from dbt.task.runnable import GraphRunnableTask
 from dbt_rpc.rpc.method import RemoteManifestMethod, Parameters
@@ -15,7 +13,6 @@ from typing import AbstractSet
 
 RESULT_TYPE_MAP = {
     RunResult: RemoteExecutionResult,
-    RunOperationResult: RemoteRunOperationResult,
     FreshnessResult: RemoteFreshnessResult,
 }
 
