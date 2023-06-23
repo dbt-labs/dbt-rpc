@@ -28,7 +28,11 @@ setup(
             "dbt-rpc = dbt_rpc.__main__:main",
         ],
     },
-    install_requires=["json-rpc>=1.14,<2", "dbt-core>=1.5.0"],
+    install_requires=[
+        "dbt-core>=1.5.0",
+        "json-rpc>=1.14,<2",
+        "werkzeug>=1,<3",
+    ],
     zip_safe=False,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
