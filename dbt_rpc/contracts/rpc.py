@@ -86,6 +86,7 @@ class RPCRunParameters(RPCParameters):
     selector: Optional[str] = None
     state: Optional[str] = None
     defer: Optional[bool] = None
+    favor_state: Optional[bool] = None
 
 
 @dataclass
@@ -103,6 +104,7 @@ class RPCTestParameters(RPCCompileParameters):
     schema: bool = False
     state: Optional[str] = None
     defer: Optional[bool] = None
+    favor_state: Optional[bool] = None
 
 
 @dataclass
@@ -130,6 +132,7 @@ class RPCBuildParameters(RPCParameters):
     selector: Optional[str] = None
     state: Optional[str] = None
     defer: Optional[bool] = None
+    favor_state: Optional[bool] = None
 
 
 @dataclass

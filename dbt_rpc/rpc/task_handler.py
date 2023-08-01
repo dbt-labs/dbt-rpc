@@ -482,6 +482,7 @@ class RequestTaskHandler(threading.Thread, TaskHandlerProtocol):
     def handle(self, kwargs: Dict[str, Any]) -> Dict[str, Any]:
         self.started = datetime.utcnow()
         self.state = TaskHandlerState.Initializing
+        print(f"---in RequestTaskHandler.handle. kwargs: {kwargs}")
         self.task_kwargs = kwargs
 
         with SetArgsStateHandler(self):
