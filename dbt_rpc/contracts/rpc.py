@@ -10,7 +10,6 @@ from dbt.dataclass_schema import dbtClassMixin, StrEnum
 from dbt.contracts.graph.nodes import ResultNode
 from dbt.contracts.graph.manifest import WritableManifest
 from dbt.contracts.results import (
-    NodeStatus,
     RunResult,
     RunResultsArtifact,
     TimingInfo,
