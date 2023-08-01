@@ -343,7 +343,7 @@ class RunOperationCompleteResult(
             results=base.results,
             elapsed_time=base.elapsed_time,
             logs=logs,
-            success=all(result.status == NodeStatus.Success for result in base.results),
+            success=base.success,
         )
 
 
