@@ -342,7 +342,6 @@ class RunOperationCompleteResult(
             generated_at=base.generated_at,
             results=base.results,
             elapsed_time=base.elapsed_time,
-            args=base.args,
             logs=logs,
             success=all(result.status == NodeStatus.Success for result in base.results),
         )
