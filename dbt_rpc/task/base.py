@@ -10,7 +10,6 @@ from dbt_rpc.contracts.rpc import (
 )
 from dbt.task.runnable import GraphRunnableTask
 from dbt_rpc.rpc.method import RemoteManifestMethod, Parameters
-from typing import AbstractSet
 
 
 RESULT_TYPE_MAP = {

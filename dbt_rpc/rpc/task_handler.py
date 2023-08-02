@@ -83,7 +83,7 @@ class BootstrapProcess(dbt.flags.MP_CONTEXT.Process):
 
     def task_exec(self) -> None:
         """task_exec runs first inside the child process"""
-        if type(self.task) != RemoteListTask:
+        if type(self.task) is not RemoteListTask:
             # TODO: find another solution for this.. in theory it stops us from
             # being able to kill RemoteListTask processes
             signal.signal(signal.SIGTERM, sigterm_handler)
