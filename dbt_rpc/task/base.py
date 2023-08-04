@@ -10,7 +10,6 @@ from dbt_rpc.contracts.rpc import (
 )
 from dbt.task.runnable import GraphRunnableTask
 from dbt_rpc.rpc.method import RemoteManifestMethod, Parameters
-from typing import AbstractSet
 
 
 RESULT_TYPE_MAP = {
@@ -32,13 +31,6 @@ class RPCTask(
 
     def load_manifest(self):
         # we started out with a manifest!
-        pass
-
-    def defer_to_manifest(self, adapter, selected_uids: AbstractSet[str]):
-        # https://github.com/dbt-labs/dbt-core/pull/6488
-        # abstract method added to GraphRunnableTask
-        # bacause of how we do multiple inheritance for project commands,
-        # this will be overridden by task-specific methods
         pass
 
     def get_result(
