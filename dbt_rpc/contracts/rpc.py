@@ -10,7 +10,6 @@ from dbt.dataclass_schema import dbtClassMixin, StrEnum
 from dbt.contracts.graph.nodes import ResultNode
 from dbt.contracts.graph.manifest import WritableManifest
 from dbt.contracts.results import (
-    NodeStatus,
     RunResult,
     RunResultsArtifact,
     TimingInfo,
@@ -86,6 +85,7 @@ class RPCRunParameters(RPCParameters):
     selector: Optional[str] = None
     state: Optional[str] = None
     defer: Optional[bool] = None
+    favor_state: Optional[bool] = None
 
 
 @dataclass
@@ -103,6 +103,7 @@ class RPCTestParameters(RPCCompileParameters):
     schema: bool = False
     state: Optional[str] = None
     defer: Optional[bool] = None
+    favor_state: Optional[bool] = None
 
 
 @dataclass
@@ -130,6 +131,7 @@ class RPCBuildParameters(RPCParameters):
     selector: Optional[str] = None
     state: Optional[str] = None
     defer: Optional[bool] = None
+    favor_state: Optional[bool] = None
 
 
 @dataclass
@@ -339,9 +341,8 @@ class RunOperationCompleteResult(
             generated_at=base.generated_at,
             results=base.results,
             elapsed_time=base.elapsed_time,
-            args=base.args,
             logs=logs,
-            success=all(result.status == NodeStatus.Success for result in base.results),
+            success=base.success,
         )
 
 

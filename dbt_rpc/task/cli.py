@@ -1,7 +1,7 @@
 import abc
 import shlex
 from dbt.clients.yaml_helper import Dumper, yaml  # noqa: F401
-from typing import Type, Optional
+from typing import Type, Optional, AbstractSet
 
 from dbt_rpc.contracts.rpc import RPCCliParameters
 
@@ -141,3 +141,6 @@ class RemoteRPCCli(RPCTask[RPCCliParameters]):
             # failure
             return False
         return self.real_task.interpret_results(results)
+
+    def defer_to_manifest(self, adapter, selected_uids: AbstractSet[str]):
+        return self.real_task.defer_to_manifest(self, adapter, selected_uids)

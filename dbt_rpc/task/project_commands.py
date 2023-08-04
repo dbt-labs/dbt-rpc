@@ -109,6 +109,10 @@ class RemoteRunProjectTask(RPCCommandTask[RPCRunParameters], RunTask):
             self.args.defer = get_flags().DEFER
         else:
             self.args.defer = params.defer
+        if params.favor_state is None:
+            self.args.favor_state = False
+        else:
+            self.args.favor_state = params.favor_state
 
         self.args.state = state_path(params.state)
         self.set_previous_state()
@@ -335,6 +339,10 @@ class RemoteBuildProjectTask(RPCCommandTask[RPCBuildParameters], BuildTask):
             self.args.defer = get_flags().DEFER
         else:
             self.args.defer = params.defer
+        if params.favor_state is None:
+            self.args.favor_state = False
+        else:
+            self.args.favor_state = params.favor_state
 
         self.args.state = state_path(params.state)
         self.set_previous_state()
