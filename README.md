@@ -1,8 +1,8 @@
 ## dbt-rpc
 
-> :warning: **The `dbt-rpc` plugin will be fully deprecated by the second half of of 2023.**
+> :warning: **The `dbt-rpc` plugin is deprecated.**
 >
-> dbt Labs is actively maintaining `dbt-rpc` up to dbt v1.4. Starting in v1.5, we intend to break `dbt-rpc` compatibility in favor of [the new dbt Server](https://github.com/dbt-labs/dbt-server). dbt Labs will perform critical maintenance only, until the last compatible version of dbt has reached end of official support (12 months after release; [see Core version policies](https://docs.getdbt.com/docs/dbt-versions/core)) -- then we plan to read-only archive this repository.
+> dbt Labs actively maintained `dbt-rpc` for compatibility with dbt-core versions up to v1.5. Starting with dbt-core v1.6 (released in July 2023), `dbt-rpc` is no longer supported for ongoing compatibility. In the meantime, dbt Labs will be performing critical maintenance only for `dbt-rpc`, until the last compatible version of dbt-core has reached the end of official support (see [version policies](https://docs.getdbt.com/docs/dbt-versions/core)). At that point, dbt Labs will archive this repository to be read-only.
 
 This plugin introduces a `dbt-rpc serve` command, which runs a Remote Procedure Call Server that enables you to submit dbt commands in a programmatic way. (This command is equivalent to the `dbt rpc` command that was available in older versions of `dbt-core`.)
 
